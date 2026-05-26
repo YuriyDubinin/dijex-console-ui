@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Header } from './Header';
-import { Footer } from './Footer';
-import { ToastProvider } from '@/components/ui/Toast';
+import { Header } from '@widgets/header';
+import { Footer } from '@widgets/footer';
+import { ToastProvider } from '@shared/ui';
 
 function useScrollToTopOnNavigate() {
   const { pathname } = useLocation();

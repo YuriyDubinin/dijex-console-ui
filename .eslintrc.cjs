@@ -9,7 +9,7 @@ module.exports = {
     ecmaFeatures: { jsx: true },
   },
   settings: { react: { version: 'detect' } },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'react-refresh'],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'react-refresh', '@conarti/feature-sliced'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
@@ -26,5 +26,10 @@ module.exports = {
     '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
     'react/prop-types': 'off',
     'no-console': ['warn', { allow: ['warn', 'error'] }],
+
+    // Feature-Sliced Design rules — see https://github.com/conarti/eslint-plugin-feature-sliced
+    '@conarti/feature-sliced/layers-slices': 'error',
+    '@conarti/feature-sliced/absolute-relative': 'error',
+    '@conarti/feature-sliced/public-api': 'error',
   },
 };

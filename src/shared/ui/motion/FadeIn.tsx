@@ -1,6 +1,6 @@
 import { motion, type HTMLMotionProps, type Transition } from 'framer-motion';
 import type { ReactNode } from 'react';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useReducedMotion } from '../../lib';
 
 export type FadeInProps = {
   children: ReactNode;

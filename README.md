@@ -9,6 +9,13 @@ React 18 + TypeScript (strict) + Vite 5, Tailwind CSS с дизайн-токен
 Framer Motion, React Router v6, React Hook Form + Zod (зависимости установлены),
 lucide-react, self-hosted шрифты Inter / Sora, Vitest + React Testing Library.
 
+## Архитектура
+
+Feature-Sliced Design (FSD). Слои: **app → pages → widgets → features → entities → shared**.
+Алиасы: `@app/* @pages/* @widgets/* @features/* @entities/* @shared/*`.
+Импорт через public API слайса (`index.ts`); внутри слоя — относительные пути.
+Контроль — `@conarti/eslint-plugin-feature-sliced`. Подробности — в [CLAUDE.md](./CLAUDE.md).
+
 ## Сборка
 ```
 docker buildx build \

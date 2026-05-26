@@ -10,7 +10,7 @@ import {
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle, XCircle, X } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import { cn } from '../lib';
 
 type ToastVariant = 'success' | 'error';
 

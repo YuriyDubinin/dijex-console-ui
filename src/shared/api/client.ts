@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+import { API_BASE_URL } from '../config';
 
 export type ApiErrorDetail = {
   field: string;
@@ -36,7 +36,7 @@ export async function apiRequest<TResponse>(
 ): Promise<TResponse> {
   const { method = 'GET', body, signal, headers = {} } = options;
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
     method,
     signal,
     headers: {

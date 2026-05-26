@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ApiError } from './api';
+import { ApiError } from './client';
 
 describe('ApiError', () => {
   it('uses payload message when present', () => {

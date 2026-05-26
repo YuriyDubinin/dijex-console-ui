@@ -1,6 +1,6 @@
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import type { ReactNode } from 'react';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useReducedMotion } from '../../lib';
 
 export type ScrollRevealProps = {
   children: ReactNode;

@@ -1,5 +1,4 @@
-import { Container } from '@/components/layout/Container';
-import { FadeIn } from '@/components/motion/FadeIn';
+import { Container, FadeIn } from '@shared/ui';
 
 export function HomePage() {
   return (
