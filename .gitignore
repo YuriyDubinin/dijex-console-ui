@@ -87,3 +87,18 @@ ehthumbs.db
 # Debug binary (если собираешь локально)
 debug
 __debug_bin
+
+# Node / Vite (frontend)
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+
+# Test / coverage (frontend)
+coverage/
+.vitest/
+
+# Editor caches
+.eslintcache
+*.tsbuildinfo
