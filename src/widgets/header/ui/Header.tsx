@@ -24,19 +24,19 @@ export function Header() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-40 w-full transition-[background-color,border-color,backdrop-filter] duration-300',
+        'sticky top-0 z-40 w-full transition-[background-color,border-color] duration-150 ease-out',
         scrolled
-          ? 'border-b border-border bg-bg-base/80 backdrop-blur-md'
+          ? 'border-b border-border-subtle bg-bg-0/90 backdrop-blur'
           : 'border-b border-transparent bg-transparent',
       )}
     >
-      <Container className="flex h-16 items-center justify-between gap-4 md:h-20">
+      <Container className="flex h-12 items-center justify-between gap-4">
         <Link
           to="/"
-          className="font-display text-xl font-bold tracking-tight text-text-primary hover:text-text-primary/90 md:text-2xl"
+          className="text-sm font-semibold tracking-tight text-fg-primary hover:text-fg-primary/90"
           aria-label="Dijex Console — на главную"
         >
-          Dijex Console
+          Dijex&nbsp;<span className="text-fg-muted">Console</span>
         </Link>
       </Container>
     </header>

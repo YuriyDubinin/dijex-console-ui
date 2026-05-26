@@ -1,64 +1,36 @@
 import { motion, type HTMLMotionProps, type Transition } from 'framer-motion';
 import type { ReactNode } from 'react';
-import { useReducedMotion } from '../../lib';
 
 export type FadeInProps = {
   children: ReactNode;
-  /** Задержка перед стартом, в секундах. */
+  /** Задержка перед стартом, секунды. */
   delay?: number;
-  /** Длительность анимации, в секундах. */
+  /** Длительность, секунды. По умолчанию 0.2. */
   duration?: number;
-  /** Сдвиг по Y в пикселях для эффекта «всплытия». */
-  y?: number;
-  /** Если true — анимация запускается на mount, иначе при появлении в viewport. */
-  immediate?: boolean;
+  /** Сдвиг по Y в px для лёгкого slide-эффекта (4–8). 0 — чистый fade. */
+  distance?: number;
   className?: string;
-} & Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'whileInView' | 'transition' | 'children'>;
+} & Omit<HTMLMotionProps<'div'>, 'initial' | 'animate' | 'transition' | 'children'>;
 
+/**
+ * Fade + tiny slide на mount. MotionConfig в RootLayout сам обнулит длительности
+ * при prefers-reduced-motion, отдельной проверки здесь не нужно.
+ */
 export function FadeIn({
   children,
   delay = 0,
-  duration = 0.5,
-  y = 16,
-  immediate = false,
+  duration = 0.2,
+  distance = 4,
   className,
   ...rest
 }: FadeInProps) {
-  const prefersReducedMotion = useReducedMotion();
-
-  if (prefersReducedMotion) {
-    return (
-      <div className={className} {...(rest as React.HTMLAttributes<HTMLDivElement>)}>
-        {children}
-      </div>
-    );
-  }
-
   const transition: Transition = { duration, delay, ease: 'easeOut' };
-
-  const hidden = { opacity: 0, y };
-  const visible = { opacity: 1, y: 0 };
-
-  if (immediate) {
-    return (
-      <motion.div
-        className={className}
-        initial={hidden}
-        animate={visible}
-        transition={transition}
-        {...rest}
-      >
-        {children}
-      </motion.div>
-    );
-  }
 
   return (
     <motion.div
       className={className}
-      initial={hidden}
-      whileInView={visible}
-      viewport={{ once: true, amount: 0.2 }}
+      initial={{ opacity: 0, y: distance }}
+      animate={{ opacity: 1, y: 0 }}
       transition={transition}
       {...rest}
     >

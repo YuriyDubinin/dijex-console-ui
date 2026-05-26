@@ -3,9 +3,9 @@ import { Container } from '@shared/ui';
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-24 border-t border-border bg-bg-base">
-      <Container className="flex flex-col items-start justify-between gap-4 py-8 sm:flex-row sm:items-center">
-        <p className="text-small text-text-muted">© {year} Dijex. Все права защищены.</p>
+    <footer className="mt-16 border-t border-border-subtle bg-bg-0">
+      <Container className="flex h-10 items-center justify-between">
+        <p className="text-xs text-fg-muted">© {year} Dijex Console</p>
       </Container>
     </footer>
   );

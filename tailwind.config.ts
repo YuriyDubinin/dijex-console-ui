@@ -5,43 +5,86 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'bg-base': 'var(--bg-base)',
-        'bg-surface': 'var(--bg-surface)',
-        'bg-elevated': 'var(--bg-elevated)',
-        border: 'var(--border)',
-        'text-primary': 'var(--text-primary)',
-        'text-secondary': 'var(--text-secondary)',
-        'text-muted': 'var(--text-muted)',
-        'accent-primary': 'var(--accent-primary)',
-        'accent-secondary': 'var(--accent-secondary)',
-        'accent-glow': 'var(--accent-glow)',
-        success: 'var(--success)',
-        danger: 'var(--danger)',
-        warning: 'var(--warning)',
+        // Layered surfaces: 0 — global background, 1 — base panel, 2 — elevated, 3 — overlay/popover.
+        bg: {
+          0: 'var(--bg-0)',
+          1: 'var(--bg-1)',
+          2: 'var(--bg-2)',
+          3: 'var(--bg-3)',
+        },
+        border: {
+          subtle: 'var(--border-subtle)',
+          strong: 'var(--border-strong)',
+        },
+        fg: {
+          primary: 'var(--fg-primary)',
+          secondary: 'var(--fg-secondary)',
+          muted: 'var(--fg-muted)',
+          inverse: 'var(--fg-inverse)',
+        },
+        accent: {
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          muted: 'var(--accent-muted)',
+          on: 'var(--accent-on)',
+        },
+        state: {
+          'success': 'var(--state-success)',
+          'success-muted': 'var(--state-success-muted)',
+          'error': 'var(--state-error)',
+          'error-muted': 'var(--state-error-muted)',
+          'warning': 'var(--state-warning)',
+          'warning-muted': 'var(--state-warning-muted)',
+          'info': 'var(--state-info)',
+          'info-muted': 'var(--state-info-muted)',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['Sora', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-      },
-      fontSize: {
-        display: ['clamp(2.5rem, 5vw, 4.5rem)', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
-        h1: ['clamp(2rem, 3.5vw, 3rem)', { lineHeight: '1.1', letterSpacing: '-0.015em' }],
-        h2: ['clamp(1.5rem, 2.5vw, 2.25rem)', { lineHeight: '1.2', letterSpacing: '-0.01em' }],
-        h3: ['1.5rem', { lineHeight: '1.3' }],
-        body: ['1rem', { lineHeight: '1.6' }],
-        small: ['0.875rem', { lineHeight: '1.5' }],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       borderRadius: {
-        xl: '0.75rem',
-        '2xl': '1rem',
+        sm: '0.25rem',
+        md: '0.375rem',
       },
-      boxShadow: {
-        glow: '0 0 60px -15px rgba(99, 102, 241, 0.45)',
-        'glow-cyan': '0 0 60px -15px rgba(6, 182, 212, 0.45)',
+      keyframes: {
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'fade-out': {
+          from: { opacity: '1' },
+          to: { opacity: '0' },
+        },
+        'fade-in-up': {
+          from: { opacity: '0', transform: 'translateY(4px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'slide-in-left': {
+          from: { transform: 'translateX(-100%)' },
+          to: { transform: 'translateX(0)' },
+        },
+        'slide-out-left': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-100%)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'pulse-soft': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
+        },
       },
-      backgroundImage: {
-        'grid-pattern':
-          "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0H0V40' fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.06'/%3E%3C/svg%3E\")",
+      animation: {
+        'fade-in': 'fade-in 200ms ease-out both',
+        'fade-out': 'fade-out 200ms ease-out both',
+        'fade-in-up': 'fade-in-up 200ms ease-out both',
+        'slide-in-left': 'slide-in-left 250ms ease-out both',
+        'slide-out-left': 'slide-out-left 200ms ease-out both',
+        shimmer: 'shimmer 1.6s linear infinite',
+        'pulse-soft': 'pulse-soft 1.6s ease-in-out infinite',
       },
     },
   },

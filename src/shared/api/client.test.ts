@@ -1,21 +1,42 @@
 import { describe, it, expect } from 'vitest';
-import { ApiError } from './client';
+import { ApiError, isAuthError, isCredentialsError } from './types';
 
 describe('ApiError', () => {
-  it('uses payload message when present', () => {
-    const err = new ApiError(422, {
-      code: 'validation_error',
-      message: 'Bad input',
-      details: [{ field: 'name', message: 'required' }],
-    });
+  it('exposes code, status and details', () => {
+    const err = new ApiError('VALIDATION_ERROR', 'Bad input', 422, [
+      { field: 'email', message: 'required' },
+    ]);
+    expect(err.code).toBe('VALIDATION_ERROR');
     expect(err.status).toBe(422);
     expect(err.message).toBe('Bad input');
-    expect(err.payload?.details?.[0]?.field).toBe('name');
+    expect(err.details?.[0]?.field).toBe('email');
   });
 
-  it('falls back to HTTP status when payload is missing', () => {
-    const err = new ApiError(500);
-    expect(err.message).toBe('HTTP 500');
-    expect(err.payload).toBeUndefined();
+  it('defaults status to 0 for network-level errors', () => {
+    const err = new ApiError('NETWORK_ERROR', 'Network error');
+    expect(err.status).toBe(0);
+    expect(err.details).toBeUndefined();
+  });
+});
+
+describe('isAuthError', () => {
+  it('matches all auth codes', () => {
+    expect(isAuthError('UNAUTHORIZED')).toBe(true);
+    expect(isAuthError('TOKEN_EXPIRED')).toBe(true);
+    expect(isAuthError('TOKEN_REVOKED')).toBe(true);
+    expect(isAuthError('EMPLOYEE_DISABLED')).toBe(true);
+  });
+
+  it('rejects non-auth codes', () => {
+    expect(isAuthError('VALIDATION_ERROR')).toBe(false);
+    expect(isAuthError('INVALID_CREDENTIALS')).toBe(false);
+    expect(isAuthError('NETWORK_ERROR')).toBe(false);
+  });
+});
+
+describe('isCredentialsError', () => {
+  it('matches only INVALID_CREDENTIALS', () => {
+    expect(isCredentialsError('INVALID_CREDENTIALS')).toBe(true);
+    expect(isCredentialsError('UNAUTHORIZED')).toBe(false);
   });
 });

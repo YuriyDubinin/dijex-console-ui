@@ -1,62 +1,115 @@
 import { API_BASE_URL } from '../config';
+import {
+  ApiError,
+  isAuthError,
+  type ApiErrorCode,
+  type ApiErrorPayload,
+  type PingResponse,
+} from './types';
+import { authErrorReasonFromCode, emitAuthError } from './interceptor';
 
-export type ApiErrorDetail = {
-  field: string;
-  message: string;
-};
+const DEFAULT_TIMEOUT_MS = 30_000;
 
-export type ApiErrorPayload = {
-  code: string;
-  message: string;
-  details?: ApiErrorDetail[];
-};
+/**
+ * Провайдер токена. Регистрируется из app-слоя, чтобы shared не знал про entities/session.
+ * Должен возвращать токен ТОЛЬКО если он валиден (по сроку); проверка — на стороне провайдера.
+ */
+export type TokenProvider = () => string | null;
 
-export class ApiError extends Error {
-  public readonly status: number;
-  public readonly payload?: ApiErrorPayload;
+let tokenProvider: TokenProvider | null = null;
 
-  constructor(status: number, payload?: ApiErrorPayload) {
-    super(payload?.message ?? `HTTP ${status}`);
-    this.name = 'ApiError';
-    this.status = status;
-    this.payload = payload;
-  }
+export function setTokenProvider(provider: TokenProvider | null): void {
+  tokenProvider = provider;
 }
 
-export type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  body?: unknown;
+type RequestOptions = {
+  /** Если true — Authorization не добавляется (полезно для /login и /ping). */
+  auth?: boolean;
   signal?: AbortSignal;
   headers?: Record<string, string>;
 };
 
-export async function apiRequest<TResponse>(
+async function request<TResponse>(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
+  body: unknown,
   options: RequestOptions = {},
 ): Promise<TResponse> {
-  const { method = 'GET', body, signal, headers = {} } = options;
+  const { auth = true, signal: externalSignal, headers = {} } = options;
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    method,
-    signal,
-    headers: {
-      ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
-      ...headers,
-    },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort('timeout'), DEFAULT_TIMEOUT_MS);
+  // Прокидываем внешний AbortSignal в наш контроллер, чтобы поддержать React Query / страничные cancel-сценарии.
+  const onExternalAbort = () => controller.abort(externalSignal?.reason);
+  if (externalSignal) {
+    if (externalSignal.aborted) controller.abort(externalSignal.reason);
+    else externalSignal.addEventListener('abort', onExternalAbort, { once: true });
+  }
 
-  if (!res.ok) {
-    const payload = (await res.json().catch(() => null)) as { error?: ApiErrorPayload } | null;
-    throw new ApiError(res.status, payload?.error);
+  const finalHeaders: Record<string, string> = { Accept: 'application/json', ...headers };
+  if (body !== undefined) finalHeaders['Content-Type'] = 'application/json';
+  if (auth) {
+    const token = tokenProvider?.();
+    if (token) finalHeaders.Authorization = `Bearer ${token}`;
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers: finalHeaders,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+  } catch (err: unknown) {
+    if (controller.signal.aborted) {
+      // Различаем причину прерывания: наш таймаут vs внешняя отмена.
+      if (controller.signal.reason === 'timeout') {
+        throw new ApiError('TIMEOUT', 'Request timeout', 0);
+      }
+      // Внешняя отмена — пробрасываем как есть, чтобы React Query не считал это ошибкой запроса.
+      throw err;
+    }
+    throw new ApiError('NETWORK_ERROR', 'Network error', 0);
+  } finally {
+    window.clearTimeout(timeoutId);
+    if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort);
   }
 
   if (res.status === 204) return undefined as TResponse;
-  return (await res.json()) as TResponse;
+
+  // Попытка распарсить JSON; на пустом теле / битом JSON отдадим INTERNAL_ERROR с HTTP-статусом.
+  const raw = (await res.json().catch(() => null)) as { error?: ApiErrorPayload } | unknown;
+
+  if (!res.ok) {
+    const errorPayload =
+      raw && typeof raw === 'object' && 'error' in raw
+        ? ((raw as { error?: ApiErrorPayload }).error ?? null)
+        : null;
+    const code = (errorPayload?.code ?? 'INTERNAL_ERROR') as ApiErrorCode;
+    const message = errorPayload?.message ?? `HTTP ${res.status}`;
+    const apiError = new ApiError(code, message, res.status, errorPayload?.details);
+    if (isAuthError(code)) emitAuthError(authErrorReasonFromCode(code), apiError);
+    throw apiError;
+  }
+
+  return raw as TResponse;
 }
 
-export type PingResponse = { status: string };
+export const api = {
+  get: <T>(path: string, options?: RequestOptions): Promise<T> =>
+    request<T>('GET', path, undefined, options),
+  post: <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
+    request<T>('POST', path, body, options),
+  put: <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
+    request<T>('PUT', path, body, options),
+  patch: <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
+    request<T>('PATCH', path, body, options),
+  delete: <T>(path: string, options?: RequestOptions): Promise<T> =>
+    request<T>('DELETE', path, undefined, options),
+};
 
+// Ping — публичный, без авторизации.
 export function ping(signal?: AbortSignal): Promise<PingResponse> {
-  return apiRequest<PingResponse>('/api/ping', { signal });
+  return api.get<PingResponse>('/api/ping', { auth: false, signal });
 }

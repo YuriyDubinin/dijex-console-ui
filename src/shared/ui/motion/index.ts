@@ -1,5 +1,14 @@
 export { FadeIn } from './FadeIn';
 export type { FadeInProps } from './FadeIn';
-export { ScrollReveal } from './ScrollReveal';
-export type { ScrollRevealProps } from './ScrollReveal';
-export { revealItemVariants } from './variants';
+export { StaggerList } from './StaggerList';
+export type { StaggerListProps } from './StaggerList';
+export { PageTransition } from './PageTransition';
+export type { PageTransitionProps } from './PageTransition';
+export {
+  baseTransition,
+  fadeInVariants,
+  fadeOnlyVariants,
+  staggerContainerVariants,
+  staggerItemVariants,
+  pageTransitionVariants,
+} from './variants';

@@ -1,72 +1,89 @@
-import { type ComponentPropsWithoutRef, type ElementType, type ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cn } from '../lib';
+import { Spinner } from './Spinner';
 
 const variantClasses = {
   primary: [
-    'bg-accent-primary text-white border border-transparent',
-    'hover:bg-accent-primary/90 hover:shadow-glow',
-    'active:bg-accent-primary/80',
-    'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
+    'bg-accent text-accent-on border border-accent',
+    'hover:bg-accent-hover hover:border-accent-hover',
+    'active:bg-accent active:opacity-90',
+  ].join(' '),
+  secondary: [
+    'bg-bg-2 text-fg-primary border border-border-subtle',
+    'hover:bg-bg-3 hover:border-border-strong',
+    'active:bg-bg-2',
   ].join(' '),
   ghost: [
-    'bg-transparent text-text-primary border border-border',
-    'hover:border-accent-primary/60 hover:bg-bg-surface',
-    'active:bg-bg-surface/80',
-    'disabled:opacity-50 disabled:cursor-not-allowed',
+    'bg-transparent text-fg-secondary border border-transparent',
+    'hover:bg-bg-2 hover:text-fg-primary',
+    'active:bg-bg-1',
   ].join(' '),
-  link: [
-    'bg-transparent text-accent-primary border border-transparent',
-    'hover:text-accent-primary/80 underline-offset-4 hover:underline',
-    'disabled:opacity-50 disabled:cursor-not-allowed',
+  destructive: [
+    'bg-transparent text-state-error border border-border-subtle',
+    'hover:bg-state-error-muted hover:border-state-error',
+    'active:opacity-90',
   ].join(' '),
 } as const;
 
 type Variant = keyof typeof variantClasses;
 
 const sizeClasses = {
-  sm: 'h-9 px-3 text-small gap-1.5',
-  md: 'h-11 px-5 text-body gap-2',
-  lg: 'h-14 px-7 text-body gap-2.5',
+  sm: 'h-8 px-3 text-xs gap-1.5',
+  md: 'h-9 px-4 text-sm gap-2',
+  lg: 'h-11 px-5 text-sm gap-2',
 } as const;
 
 type Size = keyof typeof sizeClasses;
 
-type ButtonOwnProps = {
+export type ButtonProps = {
   variant?: Variant;
   size?: Size;
-  children: ReactNode;
-  className?: string;
-};
+  loading?: boolean;
+  /** Левая иконка; скрывается при loading. */
+  leftIcon?: ReactNode;
+  /** Правая иконка; скрывается при loading. */
+  rightIcon?: ReactNode;
+  children?: ReactNode;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'>;
 
-export type ButtonProps<E extends ElementType = 'button'> = ButtonOwnProps & {
-  as?: E;
-} & Omit<ComponentPropsWithoutRef<E>, keyof ButtonOwnProps | 'as'>;
-
-export function Button<E extends ElementType = 'button'>({
-  as,
-  variant = 'primary',
-  size = 'md',
-  className,
-  children,
-  ...rest
-}: ButtonProps<E>) {
-  const Tag = (as ?? 'button') as ElementType;
-  const isLink = variant === 'link';
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = 'primary',
+    size = 'md',
+    loading = false,
+    disabled,
+    leftIcon,
+    rightIcon,
+    className,
+    children,
+    type = 'button',
+    ...rest
+  },
+  ref,
+) {
+  const isDisabled = disabled || loading;
 
   return (
-    <Tag
+    <button
+      ref={ref}
+      type={type}
+      disabled={isDisabled}
+      aria-busy={loading || undefined}
       className={cn(
-        'inline-flex items-center justify-center font-semibold rounded-xl',
-        'transition-all duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base',
-        'select-none',
+        'inline-flex items-center justify-center rounded-md font-medium select-none',
+        'transition-[background-color,border-color,color,opacity] duration-150 ease-out',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-0',
+        'disabled:cursor-not-allowed disabled:opacity-50',
+        'active:scale-[0.98]',
         variantClasses[variant],
-        isLink ? '' : sizeClasses[size],
+        sizeClasses[size],
         className,
       )}
       {...rest}
     >
-      {children}
-    </Tag>
+      {loading ? <Spinner size={size === 'lg' ? 18 : 14} /> : leftIcon}
+      {children ? <span className={cn(loading && 'opacity-0')}>{children}</span> : null}
+      {!loading && rightIcon ? rightIcon : null}
+    </button>
   );
-}
+});
