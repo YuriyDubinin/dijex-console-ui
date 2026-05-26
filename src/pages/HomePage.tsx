@@ -1,21 +1,17 @@
-import { Hero } from '@/components/sections/Hero';
-import { About } from '@/components/sections/About';
-import { Services } from '@/components/sections/Services';
-import { Cases } from '@/components/sections/Cases';
-import { Process } from '@/components/sections/Process';
-import { TechStack } from '@/components/sections/TechStack';
-import { ContactForm } from '@/components/sections/ContactForm';
+import { Container } from '@/components/layout/Container';
+import { FadeIn } from '@/components/motion/FadeIn';
 
 export function HomePage() {
   return (
-    <>
-      <Hero />
-      <About />
-      <Services />
-      <Cases />
-      <Process />
-      <TechStack />
-      <ContactForm />
-    </>
+    <Container className="py-24 md:py-32">
+      <FadeIn immediate>
+        <h1 className="font-display text-display font-bold tracking-tight text-text-primary">
+          Dijex Console
+        </h1>
+        <p className="mt-6 max-w-2xl text-body text-text-secondary">
+          Пустой шаблон консоли. Здесь появится интерфейс приложения.
+        </p>
+      </FadeIn>
+    </Container>
   );
 }
