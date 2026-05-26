@@ -9,21 +9,7 @@ React 18 + TypeScript (strict) + Vite 5, Tailwind CSS с дизайн-токен
 Framer Motion, React Router v6, React Hook Form + Zod (зависимости установлены),
 lucide-react, self-hosted шрифты Inter / Sora, Vitest + React Testing Library.
 
-## Локальный запуск
-
-```
-npm install
-npm run dev
-```
-
-`.env` определяет адрес бэкенда:
-
-```
-VITE_API_BASE_URL=http://localhost:18080
-```
-
 ## Сборка
-
 ```
 docker buildx build \
   --platform linux/amd64 \
@@ -34,18 +20,13 @@ docker buildx build \
 ```
 
 ## Запуск контейнера
-
-Бэкенд занимает порт `18080`. Консоль публикуется на хосте на порту **`13080`**:
-
 ```
 docker run -d \
   --name dijex-console-ui \
   -p 13080:80 \
   yuriydubinin100/dijex-console-ui:1.0.0
 ```
-
-Открывается на `http://localhost:13080`. Все запросы идут на тот же бэкенд,
-адрес которого зашит в bundle через `VITE_API_BASE_URL` на этапе билда.
+Базовый URL при локальном запуске: `http://localhost:13080`.
 
 ## Деплой
 
