@@ -38,13 +38,17 @@ export function Dialog({
         />
         <RDialog.Content
           className={cn(
-            'fixed left-1/2 top-1/2 z-50 w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2',
-            'rounded-md border border-border-subtle bg-bg-1 p-5',
+            'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
+            // Ограничиваем высоту вьюпортом (dvh — учитывает мобильный браузерный chrome)
+            // и делаем колоночную раскладку: header/footer фиксированы, тело скроллится.
+            'flex max-h-[90dvh] w-[min(92vw,480px)] flex-col overflow-hidden',
+            'rounded-md border border-border-subtle bg-bg-1',
             'focus:outline-none data-[state=open]:animate-dialog-in',
             className,
           )}
         >
-          <div className="flex items-start justify-between gap-4">
+          {/* Header — не сжимается */}
+          <div className="flex shrink-0 items-start justify-between gap-4 px-5 pb-3 pt-5">
             <div className="min-w-0 flex-1">
               {hideTitle ? (
                 <RDialog.Title className="sr-only">{title}</RDialog.Title>
@@ -54,7 +58,7 @@ export function Dialog({
                 </RDialog.Title>
               )}
               {description ? (
-                <RDialog.Description className="mt-1 text-xs text-fg-secondary">
+                <RDialog.Description className="mt-1 truncate text-xs text-fg-secondary">
                   {description}
                 </RDialog.Description>
               ) : null}
@@ -65,8 +69,20 @@ export function Dialog({
               </IconButton>
             </RDialog.Close>
           </div>
-          {children ? <div className="mt-4 text-sm text-fg-secondary">{children}</div> : null}
-          {footer ? <div className="mt-5 flex items-center justify-end gap-2">{footer}</div> : null}
+
+          {/* Тело — скроллится при нехватке высоты */}
+          {children ? (
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-1 text-sm text-fg-secondary">
+              {children}
+            </div>
+          ) : null}
+
+          {/* Footer — не сжимается, прижат вниз */}
+          {footer ? (
+            <div className="flex shrink-0 items-center justify-end gap-2 border-t border-border-subtle px-5 pb-5 pt-4">
+              {footer}
+            </div>
+          ) : null}
         </RDialog.Content>
       </RDialog.Portal>
     </RDialog.Root>
