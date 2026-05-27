@@ -45,8 +45,12 @@ function Gauge({ label, caption, value, sampledAt }: GaugeProps) {
 }
 
 export function KpiGauges({ data, sampledAt }: KpiGaugesProps) {
+  // Headline-метрика диска — из надёжного disks.usage; fallback на корневую партицию.
+  const usage = data.disks.usage;
   const rootPartition =
     data.disks.partitions.find((p) => p.mountpoint === '/') ?? data.disks.partitions[0];
+  const diskPercent = usage?.used_percent ?? rootPartition?.used_percent ?? 0;
+  const diskCaption = usage?.path ?? rootPartition?.mountpoint ?? '—';
   const dbPool = data.database.pool;
   const dbUtilization = dbPool.max_conns > 0 ? (dbPool.acquired_conns / dbPool.max_conns) * 100 : 0;
 
@@ -67,12 +71,7 @@ export function KpiGauges({ data, sampledAt }: KpiGaugesProps) {
         value={data.memory.virtual.used_percent}
         sampledAt={sampledAt}
       />
-      <Gauge
-        label="Disk"
-        caption={rootPartition?.mountpoint ?? '—'}
-        value={rootPartition?.used_percent ?? 0}
-        sampledAt={sampledAt}
-      />
+      <Gauge label="Disk" caption={diskCaption} value={diskPercent} sampledAt={sampledAt} />
       <Gauge
         label="DB pool"
         caption={`${dbPool.acquired_conns}/${dbPool.max_conns}`}

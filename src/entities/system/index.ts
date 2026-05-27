@@ -23,6 +23,7 @@ export type {
   SystemMemoryVirtual,
   SystemMemorySwap,
   SystemDisks,
+  SystemDiskUsage,
   SystemDiskPartition,
   SystemDiskIoCounter,
   SystemNetwork,

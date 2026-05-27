@@ -94,7 +94,22 @@ export type SystemDiskIoCounter = {
   io_time_ms: number;
 };
 
+/** Сводка по физическому диску сервера — надёжный источник headline-метрик. */
+export type SystemDiskUsage = {
+  path: string;
+  fstype: string;
+  total_bytes: number;
+  used_bytes: number;
+  free_bytes: number;
+  used_percent: number;
+  inodes_total: number;
+  inodes_used: number;
+  inodes_free: number;
+};
+
 export type SystemDisks = {
+  /** Может отсутствовать на старых ответах; total_bytes === 0 → данные не собрались. */
+  usage?: SystemDiskUsage | null;
   partitions: SystemDiskPartition[];
   io_counters?: Record<string, SystemDiskIoCounter>;
 };

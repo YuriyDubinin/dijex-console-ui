@@ -2,7 +2,7 @@ import { api } from '@shared/api';
 import type { ContainersSnapshot } from '../model';
 
 export async function getContainers(signal?: AbortSignal): Promise<ContainersSnapshot> {
-  const raw = await api.get<ContainersSnapshot>('/api/containers', { signal });
+  const raw = await api.get<ContainersSnapshot>('/api/system/containers', { signal });
   // Бэкенд при available:false отдаёт пустой containers; на всякий случай нормализуем null'ы.
   const r = raw as unknown as ContainersSnapshot & {
     containers: ContainersSnapshot['containers'] | null;

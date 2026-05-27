@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Card, Chip, StatField } from '@shared/ui';
+import { Card, Chip, Sparkline, StatField } from '@shared/ui';
 import {
   formatBytes,
   formatBytesPerSecond,
@@ -18,38 +18,63 @@ type Snapshot = {
   byName: Record<string, { sent: number; recv: number }>;
 };
 
-function useNetRates(network: SystemNetwork, sampledAt: string) {
+type NetRates = {
+  perIface: Record<string, { sentRate: number; recvRate: number }>;
+  totalRecvRate: number;
+  totalSentRate: number;
+};
+
+const EMPTY_RATES: NetRates = { perIface: {}, totalRecvRate: 0, totalSentRate: 0 };
+
+function useNetRates(network: SystemNetwork, sampledAt: string): NetRates {
   const prevRef = useRef<Snapshot | null>(null);
-  const rates: Record<string, { sentRate: number; recvRate: number }> = {};
+  // Кэшируем результат: пересчитываем только при новом снимке (сменился sampledAt),
+  // иначе повторные рендеры (StrictMode / соседние стора) обнуляли бы дельту (dt=0).
+  const resultRef = useRef<NetRates>(EMPTY_RATES);
+  const lastSampledRef = useRef<string | null>(null);
 
-  const prev = prevRef.current;
-  const dtSec = prev
-    ? (new Date(sampledAt).getTime() - new Date(prev.sampledAt).getTime()) / 1000
-    : 0;
+  if (lastSampledRef.current !== sampledAt) {
+    const perIface: Record<string, { sentRate: number; recvRate: number }> = {};
+    let totalRecvRate = 0;
+    let totalSentRate = 0;
 
-  for (const c of network.io_counters) {
-    const p = prev?.byName[c.name];
-    if (p && dtSec > 0) {
-      const ds = Math.max(0, c.bytes_sent - p.sent);
-      const dr = Math.max(0, c.bytes_recv - p.recv);
-      rates[c.name] = { sentRate: ds / dtSec, recvRate: dr / dtSec };
-    } else {
-      rates[c.name] = { sentRate: 0, recvRate: 0 };
+    const prev = prevRef.current;
+    const dtSec = prev ? (new Date(sampledAt).getTime() - new Date(prev.sampledAt).getTime()) / 1000 : 0;
+
+    for (const c of network.io_counters) {
+      const p = prev?.byName[c.name];
+      const entry =
+        p && dtSec > 0
+          ? {
+              sentRate: Math.max(0, c.bytes_sent - p.sent) / dtSec,
+              recvRate: Math.max(0, c.bytes_recv - p.recv) / dtSec,
+            }
+          : { sentRate: 0, recvRate: 0 };
+      perIface[c.name] = entry;
+      // Loopback не учитываем в агрегатной пропускной способности — это внутренний трафик.
+      const isLoopback = c.name === 'lo' || c.name.startsWith('lo');
+      if (!isLoopback) {
+        totalRecvRate += entry.recvRate;
+        totalSentRate += entry.sentRate;
+      }
     }
+
+    prevRef.current = {
+      sampledAt,
+      byName: Object.fromEntries(
+        network.io_counters.map((c) => [c.name, { sent: c.bytes_sent, recv: c.bytes_recv }]),
+      ),
+    };
+    resultRef.current = { perIface, totalRecvRate, totalSentRate };
+    lastSampledRef.current = sampledAt;
   }
 
-  prevRef.current = {
-    sampledAt,
-    byName: Object.fromEntries(
-      network.io_counters.map((c) => [c.name, { sent: c.bytes_sent, recv: c.bytes_recv }]),
-    ),
-  };
-
-  return rates;
+  return resultRef.current;
 }
 
 export function NetworkPanel({ network, sampledAt }: NetworkPanelProps) {
-  const rates = useNetRates(network, sampledAt);
+  const { perIface, totalRecvRate, totalSentRate } = useNetRates(network, sampledAt);
+  const totalThroughput = totalRecvRate + totalSentRate;
 
   // Сначала «up», потом «down»; loopback — в конец.
   const sorted = [...network.interfaces].sort((a, b) => {
@@ -69,7 +94,28 @@ export function NetworkPanel({ network, sampledAt }: NetworkPanelProps) {
         subtitle={`// ${network.interfaces.length} iface · ${formatCount(network.connections_count, true)} conn`}
       />
 
-      <div className="grid grid-cols-2 gap-3">
+      {/* Throughput: агрегатная пропускная способность + sparkline тренда */}
+      <div>
+        <div className="flex items-baseline justify-between">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+            throughput
+          </span>
+          <span className="flex items-baseline gap-3 font-mono text-xs tabular-nums text-fg-primary">
+            <span>↓ {formatBytesPerSecond(totalRecvRate)}</span>
+            <span>↑ {formatBytesPerSecond(totalSentRate)}</span>
+          </span>
+        </div>
+        <div className="mt-2">
+          <Sparkline
+            value={totalThroughput}
+            sampledAt={sampledAt}
+            height={40}
+            strokeClassName="text-accent"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 border-t border-border-subtle pt-3">
         <StatField
           label="connections"
           value={formatCount(network.connections_count, true)}
@@ -78,11 +124,11 @@ export function NetworkPanel({ network, sampledAt }: NetworkPanelProps) {
         <StatField label="interfaces" value={network.interfaces.length} mono />
       </div>
 
-      <ul className="divide-y divide-border-subtle">
+      <ul className="divide-y divide-border-subtle border-t border-border-subtle">
         {sorted.map((iface) => {
           const isUp = iface.flags.includes('up') || iface.flags.includes('running');
           const counter = network.io_counters.find((c) => c.name === iface.name);
-          const rate = rates[iface.name];
+          const rate = perIface[iface.name];
           const ipv4 = iface.addresses.find((a) => a.family === 'ipv4');
           return (
             <li key={iface.name} className="py-2.5">

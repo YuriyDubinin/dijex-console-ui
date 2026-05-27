@@ -8,7 +8,7 @@ import type {
 } from '../model';
 
 export async function getSystem(signal?: AbortSignal): Promise<SystemSnapshot> {
-  const raw = await api.get<SystemSnapshot>('/api/system', { signal });
+  const raw = await api.get<SystemSnapshot>('/api/system/main', { signal });
   return normalizeSnapshot(raw);
 }
 

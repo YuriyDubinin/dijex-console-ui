@@ -44,13 +44,14 @@ export function CorePage() {
           <MemoryPanel memory={data.memory} sampledAt={sampledAt} />
         </div>
 
+        <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
+          <DisksPanel disks={data.disks} sampledAt={sampledAt} />
+          <NetworkPanel network={data.network} sampledAt={sampledAt} />
+        </div>
+
         <ContainersPanel />
 
         <ServicesPanel />
-
-        <DisksPanel disks={data.disks} sampledAt={sampledAt} />
-
-        <NetworkPanel network={data.network} sampledAt={sampledAt} />
 
         <div className="grid gap-4 lg:grid-cols-2">
           <RuntimePanel runtime={data.go_runtime} sampledAt={sampledAt} />
