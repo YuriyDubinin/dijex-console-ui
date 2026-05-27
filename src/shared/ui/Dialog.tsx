@@ -40,7 +40,7 @@ export function Dialog({
           className={cn(
             'fixed left-1/2 top-1/2 z-50 w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2',
             'rounded-md border border-border-subtle bg-bg-1 p-5',
-            'focus:outline-none data-[state=open]:animate-fade-in-up',
+            'focus:outline-none data-[state=open]:animate-dialog-in',
             className,
           )}
         >

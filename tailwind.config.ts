@@ -60,6 +60,12 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(4px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        // Для центрированных диалогов: сохраняем translate(-50%,-50%) во время анимации,
+        // иначе entry-transform перебивает центрирование и диалог уезжает от центра.
+        'dialog-in': {
+          from: { opacity: '0', transform: 'translate(-50%, calc(-50% + 6px)) scale(0.98)' },
+          to: { opacity: '1', transform: 'translate(-50%, -50%) scale(1)' },
+        },
         'slide-in-left': {
           from: { transform: 'translateX(-100%)' },
           to: { transform: 'translateX(0)' },
@@ -81,6 +87,8 @@ const config: Config = {
         'fade-in': 'fade-in 200ms ease-out both',
         'fade-out': 'fade-out 200ms ease-out both',
         'fade-in-up': 'fade-in-up 200ms ease-out both',
+        // Без fill-mode: после анимации transform возвращается к статическому translate(-50%,-50%).
+        'dialog-in': 'dialog-in 200ms ease-out',
         'slide-in-left': 'slide-in-left 250ms ease-out both',
         'slide-out-left': 'slide-out-left 200ms ease-out both',
         shimmer: 'shimmer 1.6s linear infinite',

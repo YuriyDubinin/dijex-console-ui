@@ -105,8 +105,8 @@ export const api = {
     request<T>('PUT', path, body, options),
   patch: <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
     request<T>('PATCH', path, body, options),
-  delete: <T>(path: string, options?: RequestOptions): Promise<T> =>
-    request<T>('DELETE', path, undefined, options),
+  delete: <T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> =>
+    request<T>('DELETE', path, body, options),
 };
 
 // Ping — публичный, без авторизации.
