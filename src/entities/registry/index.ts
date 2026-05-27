@@ -3,13 +3,19 @@ export {
   createRegistry,
   updateRegistry,
   deleteRegistry,
+  connectRegistry,
+  pingRegistry,
+  getRegistryImages,
   useRegistriesQuery,
   useCreateRegistry,
   useUpdateRegistry,
   useDeleteRegistry,
+  useConnectRegistry,
+  usePingRegistry,
+  useRegistryImagesQuery,
   REGISTRIES_QUERY_KEY,
 } from './api';
-export { REGISTRY_TYPES } from './model';
+export { REGISTRY_TYPES, describeRegistryCheck } from './model';
 export type {
   Registry,
   RegistryType,
@@ -21,4 +27,13 @@ export type {
   CreateRegistryInput,
   UpdateRegistryInput,
   DeleteRegistryResponse,
+  RegistryCheckStatus,
+  RegistryCheckResult,
+  RegistryActionResult,
+  RegistryConnectResult,
+  RegistryPingResult,
+  RegistryImage,
+  RegistryImagesResponse,
+  RegistryImagesInput,
+  CheckTone,
 } from './model';

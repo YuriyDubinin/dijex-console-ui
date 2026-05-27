@@ -9,14 +9,20 @@ import type {
   CreateRegistryInput,
   DeleteRegistryResponse,
   Registry,
+  RegistryConnectResult,
+  RegistryImagesResponse,
   RegistryListParams,
   RegistryListResponse,
+  RegistryPingResult,
   UpdateRegistryInput,
 } from '../model';
 import {
+  connectRegistry,
   createRegistry,
   deleteRegistry,
+  getRegistryImages,
   listRegistries,
+  pingRegistry,
   updateRegistry,
 } from './registriesApi';
 
@@ -62,5 +68,43 @@ export function useDeleteRegistry(): UseMutationResult<DeleteRegistryResponse, E
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: REGISTRIES_QUERY_KEY });
     },
+  });
+}
+
+export function useConnectRegistry(): UseMutationResult<RegistryConnectResult, Error, string> {
+  const qc = useQueryClient();
+  return useMutation<RegistryConnectResult, Error, string>({
+    mutationFn: connectRegistry,
+    meta: { silent: true }, // результат интерпретируем сами по connected/status
+    onSuccess: () => {
+      // connect меняет is_active/last_status — обновляем список.
+      void qc.invalidateQueries({ queryKey: REGISTRIES_QUERY_KEY });
+    },
+  });
+}
+
+export function usePingRegistry(): UseMutationResult<RegistryPingResult, Error, string> {
+  const qc = useQueryClient();
+  return useMutation<RegistryPingResult, Error, string>({
+    mutationFn: pingRegistry,
+    meta: { silent: true },
+    onSuccess: () => {
+      // ping переключает is_active в обе стороны — обновляем список.
+      void qc.invalidateQueries({ queryKey: REGISTRIES_QUERY_KEY });
+    },
+  });
+}
+
+export function useRegistryImagesQuery(
+  id: string,
+  enabled: boolean,
+): UseQueryResult<RegistryImagesResponse, Error> {
+  return useQuery<RegistryImagesResponse, Error>({
+    queryKey: [...REGISTRIES_QUERY_KEY, 'images', id],
+    queryFn: ({ signal }) => getRegistryImages({ id }, signal),
+    enabled,
+    staleTime: 30_000,
+    retry: false,
+    meta: { silent: true }, // ошибки показываем в диалоге
   });
 }

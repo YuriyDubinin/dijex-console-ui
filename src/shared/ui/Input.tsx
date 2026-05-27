@@ -13,6 +13,8 @@ export type InputProps = {
   leftIcon?: ReactNode;
   /** Кнопка-глаз для type="password" (включить переключение видимости). */
   showToggle?: boolean;
+  /** Изначально показывать пароль (text), а не маскировать. Работает с showToggle. */
+  defaultRevealed?: boolean;
   required?: boolean;
   containerClassName?: string;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'children'>;
@@ -24,6 +26,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     helper,
     leftIcon,
     showToggle,
+    defaultRevealed = false,
     required,
     id,
     type = 'text',
@@ -37,7 +40,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const inputId = id ?? autoId;
   const errorId = `${inputId}-error`;
   const helperId = `${inputId}-helper`;
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(defaultRevealed);
 
   const isPassword = type === 'password';
   const effectiveType = isPassword && showToggle ? (revealed ? 'text' : 'password') : type;

@@ -110,12 +110,18 @@ export function RegistryFormDialog({ open, onOpenChange, registry }: RegistryFor
   };
 
   const onSubmit = handleSubmit(async (values) => {
+    // При создании password обязателен (в edit пустой = «не менять»).
+    if (!isEdit && !values.password) {
+      setError('password', { type: 'manual', message: 'Required' });
+      return;
+    }
+
     const base = {
       name: values.name.trim(),
       type: values.type,
       url: values.url.trim(),
       username: values.username.trim() || undefined,
-      email: values.email.trim() || undefined,
+      email: values.email.trim(), // обязателен (логин в аккаунт реестра)
       namespace: values.namespace.trim() || undefined,
       is_default: values.is_default,
       insecure: values.insecure,
@@ -228,7 +234,9 @@ export function RegistryFormDialog({ open, onOpenChange, registry }: RegistryFor
             label="Password / token"
             type="password"
             showToggle
-            placeholder={isEdit ? 'leave empty to keep' : 'optional'}
+            required={!isEdit}
+            defaultRevealed={isEdit}
+            placeholder={isEdit ? 'leave empty to keep' : 'account password / token'}
             helper={isEdit && registry?.has_credentials ? 'Credentials are stored' : undefined}
             error={errors.password?.message}
             disabled={isSubmitting || (isEdit && clearCreds)}
@@ -241,7 +249,9 @@ export function RegistryFormDialog({ open, onOpenChange, registry }: RegistryFor
           <Input
             label="Email"
             type="email"
-            placeholder="optional"
+            required
+            placeholder="login@example.com"
+            helper="Used as the account login for the registry."
             error={errors.email?.message}
             disabled={isSubmitting}
             {...register('email')}

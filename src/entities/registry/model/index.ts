@@ -1,4 +1,6 @@
 export { REGISTRY_TYPES } from './types';
+export { describeRegistryCheck } from './check';
+export type { CheckTone } from './check';
 export type {
   Registry,
   RegistryType,
@@ -10,4 +12,12 @@ export type {
   CreateRegistryInput,
   UpdateRegistryInput,
   DeleteRegistryResponse,
+  RegistryCheckStatus,
+  RegistryCheckResult,
+  RegistryActionResult,
+  RegistryConnectResult,
+  RegistryPingResult,
+  RegistryImage,
+  RegistryImagesResponse,
+  RegistryImagesInput,
 } from './types';

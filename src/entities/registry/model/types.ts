@@ -88,3 +88,55 @@ export type DeleteRegistryResponse = {
   status: 'DELETED';
   deleted_at: string;
 };
+
+export type RegistryCheckStatus =
+  | 'OK'
+  | 'AUTH_FAILED'
+  | 'UNREACHABLE'
+  | 'TLS_ERROR'
+  | 'ERROR'
+  | string;
+
+/** Общая форма ответа connect/ping (читать по `connected`, не по HTTP-коду). */
+export type RegistryCheckResult = {
+  connected: boolean;
+  authenticated: boolean;
+  status: RegistryCheckStatus;
+  message: string;
+  api_version?: string;
+  /** Новое состояние записи после проверки (connect включает при успехе; ping — в обе стороны). */
+  is_active?: boolean;
+  checked_at: string;
+};
+
+/** connect / ping — оба по id сохранённой записи, возвращают актуальный is_active. */
+export type RegistryActionResult = RegistryCheckResult & { id: string };
+export type RegistryConnectResult = RegistryActionResult;
+export type RegistryPingResult = RegistryActionResult;
+
+/** Образ из ответа /api/registries/images (DockerHub-поля опциональны для registry_v2). */
+export type RegistryImage = {
+  name: string;
+  tags: string[];
+  tag_count: number;
+  description?: string;
+  is_private?: boolean;
+  pull_count?: number;
+  star_count?: number;
+  last_updated?: string;
+};
+
+export type RegistryImagesResponse = {
+  registry_id: string;
+  type: RegistryType;
+  source: 'hub_api' | 'registry_v2' | string;
+  namespace: string;
+  total: number;
+  count: number;
+  images: RegistryImage[];
+};
+
+export type RegistryImagesInput = {
+  id: string;
+  namespace?: string;
+};

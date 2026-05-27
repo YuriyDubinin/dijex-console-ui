@@ -2,6 +2,11 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { Card, IconButton, Tooltip } from '@shared/ui';
 import type { Registry } from '@entities/registry';
 import {
+  RegistryConnectButton,
+  RegistryImagesButton,
+  RegistryPingButton,
+} from '@features/manage-registry';
+import {
   RegistryActiveBadge,
   RegistryCreds,
   RegistryDefaultMark,
@@ -47,7 +52,7 @@ export function RegistryCard({ registry, onEdit, onDelete }: RegistryCardProps) 
       </div>
 
       <div className="mt-auto flex items-center gap-3 border-t border-border-subtle pt-3">
-        <RegistryActiveBadge active={registry.is_active} />
+        <RegistryActiveBadge active={registry.is_active} pulse />
         <RegistryLastStatus status={registry.last_status} />
         <RegistryCreds has={registry.has_credentials} />
         <span className="ml-auto font-mono text-[10px] text-fg-muted">
@@ -56,6 +61,9 @@ export function RegistryCard({ registry, onEdit, onDelete }: RegistryCardProps) 
       </div>
 
       <div className="flex items-center justify-end gap-1">
+        <RegistryImagesButton registry={registry} />
+        <RegistryConnectButton registry={registry} />
+        <RegistryPingButton registry={registry} />
         <Tooltip content="Edit">
           <IconButton aria-label="Edit registry" size="sm" onClick={() => onEdit(registry)}>
             <Pencil size={13} aria-hidden />

@@ -12,13 +12,27 @@ export function RegistryTypeBadge({ type }: { type: RegistryType }) {
   );
 }
 
-export function RegistryActiveBadge({ active }: { active: boolean }) {
+export function RegistryActiveBadge({
+  active,
+  pulse = false,
+}: {
+  active: boolean;
+  /** Анимированная пульсация для активного (для карточек). */
+  pulse?: boolean;
+}) {
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <span
-        aria-hidden
-        className={cn('h-1.5 w-1.5 rounded-full', active ? 'bg-state-success' : 'bg-fg-muted')}
-      />
+    <span className="inline-flex items-center gap-2">
+      {active && pulse ? (
+        <span className="relative inline-flex h-2 w-2 shrink-0 text-state-success">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-60" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-current shadow-[0_0_6px_currentColor]" />
+        </span>
+      ) : (
+        <span
+          aria-hidden
+          className={cn('h-1.5 w-1.5 shrink-0 rounded-full', active ? 'bg-state-success' : 'bg-fg-muted')}
+        />
+      )}
       <span className={cn('text-xs', active ? 'text-fg-secondary' : 'text-fg-muted')}>
         {active ? 'Active' : 'Disabled'}
       </span>

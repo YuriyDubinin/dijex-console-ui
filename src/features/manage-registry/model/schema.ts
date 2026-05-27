@@ -7,7 +7,8 @@ export const registryFormSchema = z.object({
   url: z.string().trim().min(1, 'Required').max(500, 'Too long'),
   username: z.string().trim().max(255, 'Too long'),
   password: z.string().max(255, 'Too long'),
-  email: z.union([z.literal(''), z.string().trim().email('Invalid email')]),
+  // email теперь обязателен — используется как логин в аккаунт реестра.
+  email: z.string().trim().min(1, 'Required').email('Invalid email'),
   namespace: z.string().trim().max(255, 'Too long'),
   is_default: z.boolean(),
   is_active: z.boolean(),

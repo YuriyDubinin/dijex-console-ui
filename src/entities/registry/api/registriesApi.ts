@@ -3,8 +3,12 @@ import type {
   CreateRegistryInput,
   DeleteRegistryResponse,
   Registry,
+  RegistryConnectResult,
+  RegistryImagesInput,
+  RegistryImagesResponse,
   RegistryListParams,
   RegistryListResponse,
+  RegistryPingResult,
   UpdateRegistryInput,
 } from '../model';
 
@@ -39,4 +43,25 @@ export function updateRegistry(input: UpdateRegistryInput): Promise<Registry> {
 
 export function deleteRegistry(id: string): Promise<DeleteRegistryResponse> {
   return api.delete<DeleteRegistryResponse>('/api/registries/delete', { id });
+}
+
+/** connect — логин по сохранённым email+password; при успехе включает запись (is_active=true). */
+export function connectRegistry(id: string): Promise<RegistryConnectResult> {
+  return api.post<RegistryConnectResult>('/api/registries/connect', { id });
+}
+
+/** ping — health-check сохранённой записи; переключает is_active в обе стороны. */
+export function pingRegistry(id: string): Promise<RegistryPingResult> {
+  return api.post<RegistryPingResult>('/api/registries/ping', { id });
+}
+
+/** Список образов namespace'а по сохранённой записи. */
+export async function getRegistryImages(
+  input: RegistryImagesInput,
+  signal?: AbortSignal,
+): Promise<RegistryImagesResponse> {
+  const raw = await api.post<RegistryImagesResponse>('/api/registries/images', input, { signal });
+  // На всякий случай нормализуем возможный null в images.
+  const r = raw as unknown as RegistryImagesResponse & { images: RegistryImagesResponse['images'] | null };
+  return { ...raw, images: r.images ?? [] };
 }

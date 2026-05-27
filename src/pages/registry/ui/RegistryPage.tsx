@@ -27,7 +27,13 @@ import {
   type RegistryType,
   type SortOrder,
 } from '@entities/registry';
-import { RegistryFormDialog, REGISTRY_TYPE_LABELS } from '@features/manage-registry';
+import {
+  RegistryConnectButton,
+  RegistryFormDialog,
+  RegistryImagesButton,
+  RegistryPingButton,
+  REGISTRY_TYPE_LABELS,
+} from '@features/manage-registry';
 import { RegistryCard } from './RegistryCard';
 import {
   RegistryActiveBadge,
@@ -175,6 +181,9 @@ export function RegistryPage() {
         cellClassName: 'w-0 whitespace-nowrap',
         cell: (r) => (
           <span className="inline-flex items-center gap-1">
+            <RegistryImagesButton registry={r} />
+            <RegistryConnectButton registry={r} />
+            <RegistryPingButton registry={r} />
             <Tooltip content="Edit">
               <IconButton aria-label="Edit registry" size="sm" onClick={() => openEdit(r)}>
                 <Pencil size={13} aria-hidden />
