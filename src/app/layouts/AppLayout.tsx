@@ -103,7 +103,10 @@ export function AppLayout() {
       >
         <main className="px-4 py-4 md:px-6 md:py-6">
           <Suspense fallback={<FullScreenSpinner label="Loading" />}>
-            <PageTransition routeKey={location.pathname}>
+            {/* Ключ по верхнему сегменту пути: при смене под-таба внутри секции
+                (например /core ↔ /core/cicd) страница не перемонтируется — таб-бар
+                остаётся зафиксированным, перерисовывается только контент вкладки. */}
+            <PageTransition routeKey={`/${location.pathname.split('/')[1] ?? ''}`}>
               <Outlet />
             </PageTransition>
           </Suspense>

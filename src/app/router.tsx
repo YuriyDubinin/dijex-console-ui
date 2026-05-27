@@ -42,7 +42,8 @@ export function AppRoutes() {
       {/* private — guard в AppLayout */}
       <Route element={<AppLayout />}>
         <Route index element={<Navigate to="/core" replace />} />
-        <Route path="/core" element={<CorePage />} />
+        {/* splat — внутренняя табуляция Core (/core, /core/cicd) разбирается в CorePage */}
+        <Route path="/core/*" element={<CorePage />} />
         <Route path="/servers" element={<ServersPage />} />
         <Route path="/containers" element={<ContainersPage />} />
         <Route path="/services" element={<ServicesPage />} />

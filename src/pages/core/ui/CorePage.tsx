@@ -1,63 +1,29 @@
-import { FadeIn } from '@shared/ui';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDocumentTitle } from '@shared/lib';
-import { useSystemQuery } from '@entities/system';
-import { CoreError } from './sections/CoreError';
-import { CoreSkeleton } from './sections/CoreSkeleton';
-import { ContainersPanel } from './sections/ContainersPanel';
-import { CpuPanel } from './sections/CpuPanel';
-import { DatabasePanel } from './sections/DatabasePanel';
-import { DisksPanel } from './sections/DisksPanel';
-import { ErrorsBanner } from './sections/ErrorsBanner';
-import { KpiGauges } from './sections/KpiGauges';
-import { MemoryPanel } from './sections/MemoryPanel';
-import { NetworkPanel } from './sections/NetworkPanel';
-import { ProcessPanel } from './sections/ProcessPanel';
-import { ServicesPanel } from './sections/ServicesPanel';
-import { SummaryStrip } from './sections/SummaryStrip';
+import { CoreTabs, type CoreTab } from './CoreTabs';
+import { MainTab } from './tabs/MainTab';
+import { CicdTab } from './tabs/CicdTab';
 
-const POLL_INTERVAL_MS = 3000;
+/** Соответствие таба → путь. Табы внутри Core — это URL-пути (переживают reload). */
+const TAB_PATH: Record<CoreTab, string> = {
+  main: '/core',
+  cicd: '/core/cicd',
+};
+
+function tabFromPathname(pathname: string): CoreTab {
+  return pathname.replace(/\/+$/, '').endsWith('/cicd') ? 'cicd' : 'main';
+}
 
 export function CorePage() {
   useDocumentTitle('Core');
-  const { data, error, isLoading, isFetching, refetch } = useSystemQuery();
-
-  if (!data && isLoading) {
-    return <CoreSkeleton />;
-  }
-  if (!data) {
-    return <CoreError error={error} onRetry={() => refetch()} />;
-  }
-
-  const sampledAt = data.collected_at;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tab = tabFromPathname(location.pathname);
 
   return (
-    <FadeIn distance={4}>
-      <div className="space-y-4">
-        <SummaryStrip data={data} fetching={isFetching} pollIntervalMs={POLL_INTERVAL_MS} />
-
-        <KpiGauges data={data} sampledAt={sampledAt} />
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          <CpuPanel cpu={data.cpu} sampledAt={sampledAt} />
-          <MemoryPanel memory={data.memory} sampledAt={sampledAt} />
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
-          <DisksPanel disks={data.disks} sampledAt={sampledAt} />
-          <NetworkPanel network={data.network} sampledAt={sampledAt} />
-        </div>
-
-        <ContainersPanel />
-
-        <ServicesPanel />
-
-        <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
-          <DatabasePanel database={data.database} />
-          <ProcessPanel process={data.process} />
-        </div>
-
-        {data.errors?.length ? <ErrorsBanner errors={data.errors} /> : null}
-      </div>
-    </FadeIn>
+    <div className="space-y-4">
+      <CoreTabs active={tab} onChange={(next) => navigate(TAB_PATH[next])} />
+      <div role="tabpanel">{tab === 'main' ? <MainTab /> : <CicdTab />}</div>
+    </div>
   );
 }
