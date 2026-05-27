@@ -5,6 +5,8 @@ export type ThemeMode = 'dark' | 'light';
 
 type UIState = {
   mobileDrawerOpen: boolean;
+  /** Свёрнут ли desktop-sidebar (узкая полоска с иконками). */
+  sidebarCollapsed: boolean;
   /** Флаг проигранной typed-анимации логотипа (per session). */
   brandTypedOnce: boolean;
   /** Подложено на будущее — переключение темы. Пока используется только 'dark'. */
@@ -15,6 +17,8 @@ type UIActions = {
   openMobileDrawer: () => void;
   closeMobileDrawer: () => void;
   toggleMobileDrawer: () => void;
+  toggleSidebar: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
   markBrandTyped: () => void;
   setTheme: (theme: ThemeMode) => void;
 };
@@ -26,6 +30,7 @@ export const useUIStore = create<UIStore>()(
     persist(
       (set) => ({
         mobileDrawerOpen: false,
+        sidebarCollapsed: false,
         brandTypedOnce: false,
         theme: 'dark',
 
@@ -35,6 +40,10 @@ export const useUIStore = create<UIStore>()(
           set({ mobileDrawerOpen: false }, false, 'ui/closeMobileDrawer'),
         toggleMobileDrawer: () =>
           set((s) => ({ mobileDrawerOpen: !s.mobileDrawerOpen }), false, 'ui/toggleMobileDrawer'),
+        toggleSidebar: () =>
+          set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed }), false, 'ui/toggleSidebar'),
+        setSidebarCollapsed: (collapsed) =>
+          set({ sidebarCollapsed: collapsed }, false, 'ui/setSidebarCollapsed'),
         markBrandTyped: () =>
           set({ brandTypedOnce: true }, false, 'ui/markBrandTyped'),
         setTheme: (theme) => set({ theme }, false, 'ui/setTheme'),
@@ -42,8 +51,8 @@ export const useUIStore = create<UIStore>()(
       {
         name: 'dijex.ui',
         storage: createJSONStorage(() => localStorage),
-        // Сохраняем только theme — остальные флаги runtime-only (drawer/brandTyped — сбрасываются на reload).
-        partialize: (s) => ({ theme: s.theme }),
+        // Сохраняем theme и состояние сворачивания sidebar; остальное runtime-only.
+        partialize: (s) => ({ theme: s.theme, sidebarCollapsed: s.sidebarCollapsed }),
         version: 1,
       },
     ),

@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AUTH_EXIT_REASON_KEY } from '@shared/api';
 import { ConfirmDialog, FullScreenSpinner, PageTransition, notify } from '@shared/ui';
-import { useUIStore } from '@shared/lib';
+import { cn, useUIStore } from '@shared/lib';
 import { sessionSelectors, useSessionStore } from '@entities/session';
 import { DesktopSidebar, MobileDrawer, MobileHeader } from '@widgets/app-shell';
 import { NavigationProgress } from '@widgets/navigation-progress';
@@ -20,6 +20,7 @@ export function AppLayout() {
   const drawerOpen = useUIStore((s) => s.mobileDrawerOpen);
   const openDrawer = useUIStore((s) => s.openMobileDrawer);
   const closeDrawer = useUIStore((s) => s.closeMobileDrawer);
+  const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -94,7 +95,12 @@ export function AppLayout() {
 
       <NavigationProgress />
 
-      <div className="md:pl-[240px]">
+      <div
+        className={cn(
+          'transition-[padding] duration-200 ease-out',
+          sidebarCollapsed ? 'md:pl-[60px]' : 'md:pl-[240px]',
+        )}
+      >
         <main className="px-4 py-4 md:px-6 md:py-6">
           <Suspense fallback={<FullScreenSpinner label="Loading" />}>
             <PageTransition routeKey={location.pathname}>

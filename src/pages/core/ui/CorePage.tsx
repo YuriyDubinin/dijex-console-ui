@@ -8,12 +8,10 @@ import { CpuPanel } from './sections/CpuPanel';
 import { DatabasePanel } from './sections/DatabasePanel';
 import { DisksPanel } from './sections/DisksPanel';
 import { ErrorsBanner } from './sections/ErrorsBanner';
-import { HostPanel } from './sections/HostPanel';
 import { KpiGauges } from './sections/KpiGauges';
 import { MemoryPanel } from './sections/MemoryPanel';
 import { NetworkPanel } from './sections/NetworkPanel';
 import { ProcessPanel } from './sections/ProcessPanel';
-import { RuntimePanel } from './sections/RuntimePanel';
 import { ServicesPanel } from './sections/ServicesPanel';
 import { SummaryStrip } from './sections/SummaryStrip';
 
@@ -53,14 +51,9 @@ export function CorePage() {
 
         <ServicesPanel />
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <RuntimePanel runtime={data.go_runtime} sampledAt={sampledAt} />
+        <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
           <DatabasePanel database={data.database} />
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-2">
           <ProcessPanel process={data.process} />
-          <HostPanel host={data.host} />
         </div>
 
         {data.errors?.length ? <ErrorsBanner errors={data.errors} /> : null}

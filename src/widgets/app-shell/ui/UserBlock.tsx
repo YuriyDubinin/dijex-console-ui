@@ -1,10 +1,22 @@
 import { LogOut } from 'lucide-react';
-import { Button, Chip, notify } from '@shared/ui';
+import { Button, Chip, IconButton, Tooltip, notify } from '@shared/ui';
 import { useSessionStore } from '@entities/session';
 
 export type UserBlockProps = {
   onLogoutClick: () => void;
+  /** Свёрнутый режим — только иконка выхода с tooltip. */
+  collapsed?: boolean;
 };
+
+function initialsOf(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
+}
 
 async function copyToClipboard(text: string): Promise<boolean> {
   try {
@@ -33,7 +45,7 @@ async function copyToClipboard(text: string): Promise<boolean> {
   return ok;
 }
 
-export function UserBlock({ onLogoutClick }: UserBlockProps) {
+export function UserBlock({ onLogoutClick, collapsed = false }: UserBlockProps) {
   const employee = useSessionStore((s) => s.employee);
   if (!employee) return null;
 
@@ -42,6 +54,23 @@ export function UserBlock({ onLogoutClick }: UserBlockProps) {
     if (ok) notify.success('Copied', { description: employee.email });
     else notify.error('Copy failed');
   };
+
+  if (collapsed) {
+    return (
+      <div className="flex flex-col items-center gap-2 border-t border-border-subtle pt-4">
+        <Tooltip content={`${employee.full_name} · ${employee.role}`} side="right">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border-subtle bg-bg-2 text-[11px] font-medium text-fg-primary">
+            {initialsOf(employee.full_name) || '·'}
+          </span>
+        </Tooltip>
+        <Tooltip content="Sign out" side="right">
+          <IconButton aria-label="Sign out" onClick={onLogoutClick}>
+            <LogOut size={14} aria-hidden />
+          </IconButton>
+        </Tooltip>
+      </div>
+    );
+  }
 
   return (
     <div className="border-t border-border-subtle pt-4">

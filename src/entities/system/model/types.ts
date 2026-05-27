@@ -14,6 +14,10 @@ export type SystemApp = {
 export type SystemHost = {
   hostname: string;
   fqdn: string;
+  /** Основной исходящий IP (в контейнере — IP контейнера). Может быть пустым. */
+  primary_ip?: string;
+  /** Публичный (внешний) IP сервера — то, что показываем как «IP сервера». Может быть пустым. */
+  public_ip?: string;
   os: 'linux' | 'darwin' | 'windows' | string;
   platform: string;
   platform_family: string;
@@ -164,53 +168,6 @@ export type SystemProcess = {
   nice: number;
 };
 
-export type SystemGoMemory = {
-  alloc_bytes: number;
-  total_alloc_bytes: number;
-  sys_bytes: number;
-  heap_alloc_bytes: number;
-  heap_sys_bytes: number;
-  heap_idle_bytes: number;
-  heap_inuse_bytes: number;
-  heap_objects: number;
-  stack_inuse_bytes: number;
-  stack_sys_bytes: number;
-  next_gc_bytes: number;
-  mallocs: number;
-  frees: number;
-};
-
-export type SystemGoGc = {
-  num_gc: number;
-  num_forced_gc: number;
-  last_gc_at: string;
-  total_pause_ns: number;
-  cpu_fraction: number;
-  gc_percent: number;
-};
-
-export type SystemGoBuildInfo = {
-  main_module: string;
-  main_version: string;
-  vcs_revision: string;
-  vcs_time: string;
-  vcs_modified: boolean;
-};
-
-export type SystemGoRuntime = {
-  version: string;
-  compiler: string;
-  goos: string;
-  goarch: string;
-  goroot: string;
-  gomaxprocs: number;
-  num_goroutines: number;
-  num_cgo_calls: number;
-  memory: SystemGoMemory;
-  gc: SystemGoGc;
-  build_info: SystemGoBuildInfo;
-};
-
 export type SystemDbPool = {
   max_conns: number;
   total_conns: number;
@@ -254,7 +211,6 @@ export type SystemSnapshot = {
   disks: SystemDisks;
   network: SystemNetwork;
   process: SystemProcess;
-  go_runtime: SystemGoRuntime;
   database: SystemDatabase;
   errors: SystemError[];
 };
