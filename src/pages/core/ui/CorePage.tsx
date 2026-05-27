@@ -3,6 +3,7 @@ import { useDocumentTitle } from '@shared/lib';
 import { useSystemQuery } from '@entities/system';
 import { CoreError } from './sections/CoreError';
 import { CoreSkeleton } from './sections/CoreSkeleton';
+import { ContainersPanel } from './sections/ContainersPanel';
 import { CpuPanel } from './sections/CpuPanel';
 import { DatabasePanel } from './sections/DatabasePanel';
 import { DisksPanel } from './sections/DisksPanel';
@@ -13,6 +14,7 @@ import { MemoryPanel } from './sections/MemoryPanel';
 import { NetworkPanel } from './sections/NetworkPanel';
 import { ProcessPanel } from './sections/ProcessPanel';
 import { RuntimePanel } from './sections/RuntimePanel';
+import { ServicesPanel } from './sections/ServicesPanel';
 import { SummaryStrip } from './sections/SummaryStrip';
 
 const POLL_INTERVAL_MS = 3000;
@@ -41,6 +43,10 @@ export function CorePage() {
           <CpuPanel cpu={data.cpu} sampledAt={sampledAt} />
           <MemoryPanel memory={data.memory} sampledAt={sampledAt} />
         </div>
+
+        <ContainersPanel />
+
+        <ServicesPanel />
 
         <DisksPanel disks={data.disks} sampledAt={sampledAt} />
 

@@ -40,12 +40,15 @@ export function createQueryClient(): QueryClient {
       },
     },
     queryCache: new QueryCache({
-      onError: (err) => {
+      onError: (err, query) => {
+        // meta.silent — для polling-запросов: они показывают inline-состояние, тост не нужен.
+        if (query.meta?.silent === true) return;
         if (shouldNotify(err)) queryErrorHandler?.(err);
       },
     }),
     mutationCache: new MutationCache({
-      onError: (err) => {
+      onError: (err, _vars, _ctx, mutation) => {
+        if (mutation.meta?.silent === true) return;
         if (shouldNotify(err)) queryErrorHandler?.(err);
       },
     }),

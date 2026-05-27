@@ -16,6 +16,14 @@ const ContainersPage = lazy(async () => {
   const m = await import('@pages/containers');
   return { default: m.ContainersPage };
 });
+const ServicesPage = lazy(async () => {
+  const m = await import('@pages/services');
+  return { default: m.ServicesPage };
+});
+const RegistryPage = lazy(async () => {
+  const m = await import('@pages/registry');
+  return { default: m.RegistryPage };
+});
 const ClientsPage = lazy(async () => {
   const m = await import('@pages/clients');
   return { default: m.ClientsPage };
@@ -37,6 +45,8 @@ export function AppRoutes() {
         <Route path="/core" element={<CorePage />} />
         <Route path="/servers" element={<ServersPage />} />
         <Route path="/containers" element={<ContainersPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/registry" element={<RegistryPage />} />
         <Route path="/clients" element={<ClientsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

@@ -17,5 +17,7 @@ export function useSystemQuery(): UseQueryResult<SystemSnapshot, Error> {
     staleTime: 0,
     // Сохраняем предыдущий снапшот во время refetch — без «мигания» в loading.
     placeholderData: (prev) => prev,
+    // Polling-дашборд: ошибки показываем inline (CoreError), без toast-спама каждые 3с.
+    meta: { silent: true },
   });
 }
