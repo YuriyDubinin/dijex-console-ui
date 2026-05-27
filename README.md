@@ -20,7 +20,6 @@ docker buildx build \
   --build-arg VITE_API_BASE_URL=http://37.1.215.81:18080 \
   -t yuriydubinin100/dijex-console-ui:1.0.0 \
   --load .
-
 ```
 
 ## Запуск
@@ -42,5 +41,3 @@ docker push yuriydubinin100/dijex-console-ui:1.0.0
 ```
 docker pull yuriydubinin100/dijex-console-ui:1.0.0
 ```
-
-Подробнее по правилам FSD и дизайн-системе — в [CLAUDE.md](./CLAUDE.md).
