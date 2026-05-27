@@ -16,7 +16,7 @@ export function setQueryErrorHandler(fn: QueryErrorHandler | null): void {
 
 function shouldNotify(err: unknown): boolean {
   if (err instanceof ApiError) {
-    if (isAuthError(err.code)) return false;
+    if (isAuthError(err.code) || err.status === 401) return false;
     if (err.status === 422) return false;
   }
   return true;
@@ -28,7 +28,8 @@ export function createQueryClient(): QueryClient {
       queries: {
         retry: (failureCount, error) => {
           if (error instanceof ApiError) {
-            if (isAuthError(error.code) || error.status === 422) return false;
+            if (isAuthError(error.code) || error.status === 401 || error.status === 422)
+              return false;
           }
           return failureCount < 2;
         },

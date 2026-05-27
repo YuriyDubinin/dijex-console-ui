@@ -89,7 +89,11 @@ async function request<TResponse>(
     const code = (errorPayload?.code ?? 'INTERNAL_ERROR') as ApiErrorCode;
     const message = errorPayload?.message ?? `HTTP ${res.status}`;
     const apiError = new ApiError(code, message, res.status, errorPayload?.details);
-    if (isAuthError(code)) emitAuthError(authErrorReasonFromCode(code), apiError);
+    // Разлогиниваем при любом протухании токена: либо известный auth-код,
+    // либо «голый» HTTP 401 без распознаваемого кода в теле ответа.
+    if (isAuthError(code) || res.status === 401) {
+      emitAuthError(authErrorReasonFromCode(code), apiError);
+    }
     throw apiError;
   }
 

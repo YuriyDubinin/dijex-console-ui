@@ -40,8 +40,9 @@ export function setupSession(): void {
 
   setQueryErrorHandler((err) => {
     if (err instanceof ApiError) {
-      // auth-ошибки полностью обрабатывает auth-error handler выше.
-      if (isAuthError(err.code)) return;
+      // auth-ошибки полностью обрабатывает auth-error handler выше
+      // (включая «голый» 401 без распознаваемого кода).
+      if (isAuthError(err.code) || err.status === 401) return;
       // 422 — валидация форм; распределяется через setError в форме, тостом не шумим.
       if (err.status === 422) return;
       notify.error(err.message || 'Request failed', { code: err.code });
