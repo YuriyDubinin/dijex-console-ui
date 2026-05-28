@@ -19,6 +19,7 @@ export type {
   SystemDbPool,
   SystemDbServer,
   SystemError,
+  SystemDocker,
   AppEnv,
 } from './types';
 
@@ -37,3 +38,5 @@ export {
 
 export { deriveHealth, healthTone, healthLabel } from './health';
 export type { Health, HealthStatus } from './health';
+
+export type { SshKeyInfo, SshKeyState, SshCheckResult, SshDeleteResponse } from './sshKey';

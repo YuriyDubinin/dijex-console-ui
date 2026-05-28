@@ -1,5 +1,14 @@
 export { getSystem, useSystemQuery, SYSTEM_QUERY_KEY } from './api';
 export {
+  getSshCheck,
+  createSshKey,
+  deleteSshKey,
+  useSshCheckQuery,
+  useCreateSshKey,
+  useDeleteSshKey,
+  SSH_KEY_QUERY_KEY,
+} from './api';
+export {
   formatBytes,
   formatBytesPerSecond,
   formatUptime,
@@ -35,7 +44,12 @@ export type {
   SystemDbPool,
   SystemDbServer,
   SystemError,
+  SystemDocker,
   AppEnv,
   Health,
   HealthStatus,
+  SshKeyInfo,
+  SshKeyState,
+  SshCheckResult,
+  SshDeleteResponse,
 } from './model';

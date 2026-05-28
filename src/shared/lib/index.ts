@@ -3,3 +3,4 @@ export { useReducedMotion } from './useReducedMotion';
 export { useUIStore } from './uiStore';
 export type { UIStore, ThemeMode } from './uiStore';
 export { useDocumentTitle } from './useDocumentTitle';
+export { copyToClipboard } from './copyToClipboard';

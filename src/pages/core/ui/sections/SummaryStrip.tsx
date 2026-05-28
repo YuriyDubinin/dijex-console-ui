@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Globe } from 'lucide-react';
+import { Boxes, Cpu, Globe } from 'lucide-react';
 import { Chip } from '@shared/ui';
 import { cn } from '@shared/lib';
 import {
@@ -11,6 +11,7 @@ import {
   type SystemHost,
   type SystemSnapshot,
 } from '@entities/system';
+import { SshKeyIndicator } from '@features/manage-ssh-key';
 import { LiveIndicator } from './LiveIndicator';
 
 export type SummaryStripProps = {
@@ -39,8 +40,23 @@ function HealthPulse({ status }: { status: HealthStatus }) {
   );
 }
 
-function Sep() {
-  return <span className="text-fg-muted/50">·</span>;
+/** Бейдж ОС: иконка + платформа+версия и архитектура моноширинно. */
+function OsBadge({ host }: { host: SystemHost }) {
+  const platform = host.platform || host.os;
+  const platformLabel = platform
+    ? platform.charAt(0).toUpperCase() + platform.slice(1)
+    : 'Unknown';
+  const version = host.platform_version || '';
+  return (
+    <span className="inline-flex items-center gap-2 rounded-md border border-border-subtle bg-bg-2 px-2.5 py-1">
+      <Cpu size={13} aria-hidden className="text-fg-secondary" />
+      <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">OS</span>
+      <span className="text-xs text-fg-primary">{platformLabel}</span>
+      {version ? <span className="font-mono text-[11px] text-fg-muted">{version}</span> : null}
+      <span className="text-fg-muted/50">/</span>
+      <span className="font-mono text-[11px] text-fg-muted">{host.kernel_arch}</span>
+    </span>
+  );
 }
 
 /** Выделенный блок с IP сервера: публичный (акцент) + внутренний (muted). */
@@ -57,6 +73,38 @@ function IpBadge({ host }: { host: SystemHost }) {
           <span className="font-mono text-[11px] text-fg-muted">{host.primary_ip}</span>
         </>
       ) : null}
+    </span>
+  );
+}
+
+/**
+ * Бейдж версий Docker-стека. Показывается всегда: если поле отсутствует
+ * (бэк не смог его собрать — например, не примонтирован docker.sock или
+ * бинарь compose), вместо версии отображается прочерк.
+ */
+function DockerBadge({ engine, compose }: { engine?: string; compose?: string }) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-md border border-border-subtle bg-bg-2 px-2.5 py-1">
+      <Boxes size={13} aria-hidden className="text-state-info" />
+      <span className="inline-flex items-baseline gap-1">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">engine</span>
+        <span className="font-mono text-xs text-fg-primary">{engine || '—'}</span>
+      </span>
+      <span className="text-fg-muted/50">·</span>
+      <span className="inline-flex items-baseline gap-1">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">compose</span>
+        <span className="font-mono text-xs text-fg-primary">{compose || '—'}</span>
+      </span>
+    </span>
+  );
+}
+
+/** Аптайм с подписью, моноширинно. */
+function UptimeBadge({ seconds }: { seconds: number }) {
+  return (
+    <span className="inline-flex items-baseline gap-1.5 font-mono text-xs text-fg-secondary">
+      <span className="text-[10px] uppercase tracking-wider text-fg-muted">uptime</span>
+      <span>{formatUptime(seconds)}</span>
     </span>
   );
 }
@@ -80,17 +128,15 @@ export function SummaryStrip({ data, fetching, pollIntervalMs }: SummaryStripPro
   const tone = healthTone(health.status);
   const liveUptime = useTickingUptime(data.app.uptime_seconds, data.collected_at);
   const { host } = data;
-  const virt = host.virtualization_system
-    ? `${host.virtualization_system}${host.virtualization_role ? ' / ' + host.virtualization_role : ''}`
-    : null;
+  const docker = data.docker;
 
   return (
     <section
       aria-label="System status"
-      className="rounded-md border border-border-subtle bg-bg-1 px-4 py-2.5"
+      className="rounded-md border border-border-subtle bg-bg-1 px-4 py-3"
     >
-      {/* Основная строка: статус + идентичность + IP + uptime + live */}
-      <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
+      {/* Верхняя строка: статус + идентичность сервиса. SSH-иконка — в правом верхнем углу. */}
+      <div className="flex items-start justify-between gap-4">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <span className="inline-flex items-center gap-2">
             <HealthPulse status={health.status} />
@@ -104,7 +150,7 @@ export function SummaryStrip({ data, fetching, pollIntervalMs }: SummaryStripPro
             </span>
           </span>
 
-          <Sep />
+          <span className="text-fg-muted/50">·</span>
 
           <span className="inline-flex items-baseline gap-2">
             <span className="text-sm font-semibold text-fg-primary">{data.app.name}</span>
@@ -115,38 +161,18 @@ export function SummaryStrip({ data, fetching, pollIntervalMs }: SummaryStripPro
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-          <IpBadge host={host} />
-          <span className="font-mono text-xs text-fg-secondary">
-            <span className="text-fg-muted">uptime </span>
-            {formatUptime(liveUptime)}
-          </span>
-          <LiveIndicator fetching={fetching} intervalMs={pollIntervalMs} />
-        </div>
+        <SshKeyIndicator />
       </div>
 
-      {/* Вторичная строка: детали хоста */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 border-t border-border-subtle pt-2 font-mono text-[11px] text-fg-muted">
-        <span className="text-fg-secondary">{host.hostname}</span>
-        <Sep />
-        <span>
-          {host.platform || host.os}
-          {host.platform_version ? ` ${host.platform_version}` : ''}
-        </span>
-        <Sep />
-        <span>{host.os}/{host.kernel_arch}</span>
-        <Sep />
-        <span>kernel {host.kernel_version}</span>
-        {virt ? (
-          <>
-            <Sep />
-            <Chip tone="info" mono>
-              {virt}
-            </Chip>
-          </>
-        ) : null}
-        <Sep />
-        <span>{host.timezone}</span>
+      {/* Нижняя строка: окружение и сеть. Все элементы — выровненные «капсулы». */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-border-subtle pt-3">
+        <OsBadge host={host} />
+        <IpBadge host={host} />
+        <UptimeBadge seconds={liveUptime} />
+        <DockerBadge engine={docker?.engine} compose={docker?.compose} />
+        <div className="ml-auto">
+          <LiveIndicator fetching={fetching} intervalMs={pollIntervalMs} />
+        </div>
       </div>
     </section>
   );

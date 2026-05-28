@@ -201,6 +201,18 @@ export type SystemError = {
   message: string;
 };
 
+/**
+ * Версии Docker-стека на сервере. Любое поле может отсутствовать (omitempty):
+ *  - engine/engine_api — пусты, если docker.sock не примонтирован;
+ *  - compose — пусто, если в окружении нет docker CLI.
+ * Сам объект может прийти как `{}`.
+ */
+export type SystemDocker = {
+  engine?: string;
+  engine_api?: string;
+  compose?: string;
+};
+
 export type SystemSnapshot = {
   collected_at: string;
   collection_duration_ms: number;
@@ -212,5 +224,7 @@ export type SystemSnapshot = {
   network: SystemNetwork;
   process: SystemProcess;
   database: SystemDatabase;
+  /** Может отсутствовать на старых ответах. */
+  docker?: SystemDocker;
   errors: SystemError[];
 };
