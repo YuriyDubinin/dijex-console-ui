@@ -13,6 +13,8 @@ export function Toaster() {
       duration={4000}
       visibleToasts={5}
       gap={8}
+      // Включаем встроенный крестик Sonner; его внешний вид/позицию настраиваем через classNames.
+      closeButton
       toastOptions={{
         unstyled: false,
         classNames: {
@@ -20,7 +22,8 @@ export function Toaster() {
             'group',
             'relative !w-[360px] !max-w-[92vw]',
             'rounded-md border border-border-subtle bg-bg-3 text-fg-primary',
-            'px-3 py-2.5 text-sm',
+            // pr-8 резервирует место под крестик, чтобы он никогда не наезжал на текст.
+            'pl-3 pr-8 py-2.5 text-sm',
             'border-l-2',
           ].join(' '),
           title: 'text-sm font-medium text-fg-primary',
@@ -29,8 +32,17 @@ export function Toaster() {
             '!bg-accent !text-accent-on !text-xs !font-medium !rounded-md !px-2 !py-1',
           cancelButton:
             '!bg-transparent !text-fg-secondary !text-xs !rounded-md !px-2 !py-1',
-          closeButton:
-            '!bg-transparent !text-fg-muted hover:!text-fg-primary !border-0',
+          // Крестик: правый верхний угол; виден только при наведении на тост.
+          // `!left-auto` гасит дефолтный left:0 от Sonner, `!translate-x-0/!translate-y-0`
+          // — его дефолтный «выход за рамку» через translate.
+          closeButton: [
+            '!absolute !top-1.5 !right-1.5 !left-auto',
+            '!translate-x-0 !translate-y-0',
+            '!h-6 !w-6 !p-0 !rounded-md !border-0',
+            '!bg-transparent !text-fg-muted hover:!text-fg-primary',
+            '!opacity-0 group-hover:!opacity-100 focus-visible:!opacity-100',
+            'transition-opacity duration-150',
+          ].join(' '),
           success: '!border-l-state-success',
           error: '!border-l-state-error',
           warning: '!border-l-state-warning',

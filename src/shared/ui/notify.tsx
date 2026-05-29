@@ -26,7 +26,9 @@ function CodeChip({ code }: { code: string }) {
 }
 
 function compose(message: ReactNode, opts?: NotifyOptions): ReactNode {
-  if (!opts?.code) return message;
+  // `OK` — это самый частый success-код, и он избыточен рядом с заголовком тоста;
+  // прячем именно его, остальные коды (AUTH_FAILED, 422, …) показываем как раньше.
+  if (!opts?.code || opts.code === 'OK') return message;
   return (
     <span className="inline-flex items-center">
       <span>{message}</span>
