@@ -1,5 +1,5 @@
 export { SERVER_PROTOCOLS, SERVER_AUTH_METHODS, SERVER_ENVIRONMENTS } from './types';
-export { describeServerCheck } from './check';
+export { describeServerCheck, describeServerInstallKey } from './check';
 export type { CheckTone } from './check';
 export type {
   Server,
@@ -19,4 +19,5 @@ export type {
   ServerCheckResult,
   ServerConnectResult,
   ServerPingResult,
+  ServerInstallKeyResult,
 } from './types';

@@ -10,6 +10,7 @@ import type {
   DeleteServerResponse,
   Server,
   ServerConnectResult,
+  ServerInstallKeyResult,
   ServerListParams,
   ServerListResponse,
   ServerPingResult,
@@ -19,6 +20,7 @@ import {
   connectServer,
   createServer,
   deleteServer,
+  installServerKey,
   listServers,
   pingServer,
   updateServer,
@@ -88,6 +90,19 @@ export function usePingServer(): UseMutationResult<ServerPingResult, Error, stri
     meta: { silent: true },
     onSuccess: () => {
       // ping переключает is_active в обе стороны — обновляем список.
+      void qc.invalidateQueries({ queryKey: SERVERS_QUERY_KEY });
+    },
+  });
+}
+
+export function useInstallServerKey(): UseMutationResult<ServerInstallKeyResult, Error, string> {
+  const qc = useQueryClient();
+  return useMutation<ServerInstallKeyResult, Error, string>({
+    mutationFn: installServerKey,
+    meta: { silent: true }, // успех/провал интерпретируем сами через describeServerInstallKey
+    onSuccess: () => {
+      // install-key пишет last_status / ssh_key_installed даже при провалах (200 OK) —
+      // обновляем список, чтобы UI сразу увидел актуальные флаги.
       void qc.invalidateQueries({ queryKey: SERVERS_QUERY_KEY });
     },
   });

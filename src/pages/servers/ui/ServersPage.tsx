@@ -35,6 +35,7 @@ import {
 import {
   ServerConnectButton,
   ServerFormDialog,
+  ServerInstallKeyButton,
   ServerPingButton,
   SERVER_AUTH_METHOD_LABELS,
   SERVER_ENVIRONMENT_LABELS,
@@ -47,6 +48,7 @@ import {
   ServerEnvironmentBadge,
   ServerLastStatus,
   ServerProtocolBadge,
+  ServerSshKeyBadge,
 } from './ServerBits';
 import { formatShortDate } from './format';
 
@@ -221,6 +223,16 @@ export function ServersPage() {
         ),
       },
       {
+        key: 'app_key',
+        header: 'App key',
+        align: 'center',
+        cell: (s) => (
+          <span className="inline-flex justify-center">
+            <ServerSshKeyBadge installed={!!s.ssh_key_installed} />
+          </span>
+        ),
+      },
+      {
         key: 'created',
         header: 'Created',
         sortKey: 'created_at',
@@ -238,6 +250,8 @@ export function ServersPage() {
           <span className="inline-flex items-center gap-1">
             <ServerConnectButton server={s} />
             <ServerPingButton server={s} />
+            {/* Install/Reinstall — только если сервер хоть раз успешно «коннектился». */}
+            {s.last_status === 'OK' ? <ServerInstallKeyButton server={s} /> : null}
             <Tooltip content="Edit">
               <IconButton aria-label="Edit server" size="sm" onClick={() => openEdit(s)}>
                 <Pencil size={13} aria-hidden />

@@ -4,6 +4,7 @@ import type {
   DeleteServerResponse,
   Server,
   ServerConnectResult,
+  ServerInstallKeyResult,
   ServerListParams,
   ServerListResponse,
   ServerPingResult,
@@ -52,4 +53,14 @@ export function connectServer(id: string): Promise<ServerConnectResult> {
 /** ping — лёгкий health-check; переключает is_active (успех→true, провал→false). */
 export function pingServer(id: string): Promise<ServerPingResult> {
   return api.post<ServerPingResult>('/api/servers/remote/ping', { id });
+}
+
+/**
+ * install-key — бутстрап доверия: вход по паролю → дописывание публичного ключа
+ * приложения в authorized_keys → верификация входом по ключу. При успехе сервер
+ * проставляет servers.ssh_key_installed=true. Сетевые/auth-проблемы возвращаются
+ * как 200 OK с подробностями в теле; читать по `ssh_key_installed` + `status`.
+ */
+export function installServerKey(id: string): Promise<ServerInstallKeyResult> {
+  return api.post<ServerInstallKeyResult>('/api/servers/remote/install-ssh', { id });
 }

@@ -5,15 +5,23 @@ export {
   deleteServer,
   connectServer,
   pingServer,
+  installServerKey,
   useServersQuery,
   useCreateServer,
   useUpdateServer,
   useDeleteServer,
   useConnectServer,
   usePingServer,
+  useInstallServerKey,
   SERVERS_QUERY_KEY,
 } from './api';
-export { SERVER_PROTOCOLS, SERVER_AUTH_METHODS, SERVER_ENVIRONMENTS, describeServerCheck } from './model';
+export {
+  SERVER_PROTOCOLS,
+  SERVER_AUTH_METHODS,
+  SERVER_ENVIRONMENTS,
+  describeServerCheck,
+  describeServerInstallKey,
+} from './model';
 export type {
   Server,
   ServerProtocol,
@@ -32,5 +40,6 @@ export type {
   ServerCheckResult,
   ServerConnectResult,
   ServerPingResult,
+  ServerInstallKeyResult,
   CheckTone,
 } from './model';

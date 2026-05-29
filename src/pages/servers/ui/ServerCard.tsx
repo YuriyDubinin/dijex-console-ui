@@ -1,6 +1,10 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { Card, Chip, IconButton, Tooltip } from '@shared/ui';
-import { ServerConnectButton, ServerPingButton } from '@features/manage-server';
+import {
+  ServerConnectButton,
+  ServerInstallKeyButton,
+  ServerPingButton,
+} from '@features/manage-server';
 import type { Server } from '@entities/server';
 import {
   ServerActiveBadge,
@@ -9,6 +13,7 @@ import {
   ServerEnvironmentBadge,
   ServerLastStatus,
   ServerProtocolBadge,
+  ServerSshKeyBadge,
 } from './ServerBits';
 import { formatBytes, formatShortDate } from './format';
 
@@ -100,10 +105,11 @@ export function ServerCard({ server, onEdit, onDelete }: ServerCardProps) {
         </div>
       ) : null}
 
-      <div className="mt-auto flex items-center gap-3 border-t border-border-subtle pt-3">
+      <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-border-subtle pt-3">
         <ServerActiveBadge active={server.is_active} pulse />
         <ServerLastStatus status={server.last_status} />
         <ServerCreds hasPassword={server.has_password} hasPrivateKey={server.has_private_key} />
+        <ServerSshKeyBadge installed={!!server.ssh_key_installed} />
         <span className="ml-auto font-mono text-[10px] text-fg-muted">
           {formatShortDate(server.created_at)}
         </span>
@@ -112,6 +118,8 @@ export function ServerCard({ server, onEdit, onDelete }: ServerCardProps) {
       <div className="flex items-center justify-end gap-1">
         <ServerConnectButton server={server} />
         <ServerPingButton server={server} />
+        {/* Install/Reinstall — только если сервер хоть раз успешно «коннектился». */}
+        {server.last_status === 'OK' ? <ServerInstallKeyButton server={server} /> : null}
         <Tooltip content="Edit">
           <IconButton aria-label="Edit server" size="sm" onClick={() => onEdit(server)}>
             <Pencil size={13} aria-hidden />

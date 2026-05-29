@@ -31,6 +31,8 @@ export type Server = {
   /** Заданы ли секреты (сами секреты наружу не возвращаются). */
   has_password: boolean;
   has_private_key: boolean;
+  /** Установлен ли публичный SSH-ключ приложения в authorized_keys сервера и подтверждён ли вход по ключу. */
+  ssh_key_installed?: boolean;
   is_active: boolean;
   // Факты окружения — заполняются после remote/connect, через CRUD не редактируются.
   os?: string;
@@ -151,3 +153,25 @@ export type ServerCheckResult = {
 
 export type ServerConnectResult = ServerCheckResult;
 export type ServerPingResult = ServerCheckResult;
+
+/**
+ * Результат POST /api/servers/remote/install-key — установка SSH-ключа приложения
+ * в authorized_keys выбранного сервера + верификация. Любые сетевые/auth-проблемы
+ * приходят как 200 OK с подробностями в теле (читать по `ssh_key_installed`/`status`).
+ */
+export type ServerInstallKeyResult = {
+  id: string;
+  /** Удалось ли войти паролем на этапе установки. */
+  connected: boolean;
+  /** Ключ уже был в authorized_keys (идемпотентный повтор). */
+  already_installed: boolean;
+  /** Ключ был дописан в authorized_keys в этом вызове. */
+  installed: boolean;
+  /** Повторный коннект уже по ключу прошёл — ключ реально работает. */
+  verified: boolean;
+  /** Итоговый флаг в БД: true ⇔ verified=true. После 200 фронт читает его из /servers/list. */
+  ssh_key_installed: boolean;
+  status: ServerCheckStatus;
+  message: string;
+  checked_at: string;
+};

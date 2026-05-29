@@ -5,6 +5,7 @@ export {
   deleteServer,
   connectServer,
   pingServer,
+  installServerKey,
 } from './serversApi';
 export {
   useServersQuery,
@@ -13,5 +14,6 @@ export {
   useDeleteServer,
   useConnectServer,
   usePingServer,
+  useInstallServerKey,
   SERVERS_QUERY_KEY,
 } from './useServers';

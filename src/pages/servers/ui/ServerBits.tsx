@@ -1,5 +1,5 @@
-import { KeyRound, Lock, Terminal } from 'lucide-react';
-import { Chip, type ChipTone } from '@shared/ui';
+import { KeyRound, Lock, ShieldCheck, ShieldOff, Terminal } from 'lucide-react';
+import { Chip, Tooltip, type ChipTone } from '@shared/ui';
 import { cn } from '@shared/lib';
 import type { ServerAuthMethod, ServerEnvironment, ServerProtocol } from '@entities/server';
 import {
@@ -94,5 +94,39 @@ export function ServerAuthMethodLabel({ method }: { method: ServerAuthMethod }) 
     <span className="font-mono text-xs text-fg-secondary">
       {SERVER_AUTH_METHOD_LABELS[method] ?? method}
     </span>
+  );
+}
+
+/**
+ * Индикатор «установлен ли публичный SSH-ключ приложения в authorized_keys
+ * этого сервера». Стильный компактный chip-badge: иконка + мини-лейбл «SSH».
+ *  - installed=true  → success-тон со свечением (вход по ключу подтверждён);
+ *  - installed=false → muted-тон (ключ ещё не положен).
+ */
+export function ServerSshKeyBadge({ installed }: { installed: boolean }) {
+  const tooltip = installed
+    ? 'App SSH key is installed and verified on this server'
+    : 'App SSH key is not installed on this server';
+  const Icon = installed ? ShieldCheck : ShieldOff;
+  return (
+    <Tooltip content={tooltip}>
+      <span
+        role="status"
+        aria-label={tooltip}
+        className={cn(
+          'inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-tight',
+          installed
+            ? 'border-state-success/40 bg-state-success-muted text-state-success'
+            : 'border-border-subtle bg-bg-2 text-fg-muted',
+        )}
+      >
+        <Icon
+          size={11}
+          aria-hidden
+          className={installed ? 'drop-shadow-[0_0_4px_currentColor]' : ''}
+        />
+        SSH
+      </span>
+    </Tooltip>
   );
 }
