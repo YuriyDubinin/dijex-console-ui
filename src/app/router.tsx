@@ -12,6 +12,10 @@ const ServersPage = lazy(async () => {
   const m = await import('@pages/servers');
   return { default: m.ServersPage };
 });
+const ServerDetailPage = lazy(async () => {
+  const m = await import('@pages/server-detail');
+  return { default: m.ServerDetailPage };
+});
 const ContainersPage = lazy(async () => {
   const m = await import('@pages/containers');
   return { default: m.ContainersPage };
@@ -45,6 +49,8 @@ export function AppRoutes() {
         {/* splat — внутренняя табуляция Core (/core, /core/cicd) разбирается в CorePage */}
         <Route path="/core/*" element={<CorePage />} />
         <Route path="/servers" element={<ServersPage />} />
+        {/* splat — внутренняя табуляция страницы сервера (/servers/:id, /servers/:id/cicd) */}
+        <Route path="/servers/:id/*" element={<ServerDetailPage />} />
         <Route path="/containers" element={<ContainersPage />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/registry" element={<RegistryPage />} />

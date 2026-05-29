@@ -3,10 +3,12 @@ import { Card, Chip, IconButton, Tooltip } from '@shared/ui';
 import {
   ServerConnectButton,
   ServerInstallKeyButton,
+  ServerOpenButton,
   ServerPingButton,
 } from '@features/manage-server';
-import type { Server } from '@entities/server';
 import {
+  formatBytes,
+  formatShortDate,
   ServerActiveBadge,
   ServerAuthMethodLabel,
   ServerCreds,
@@ -14,8 +16,8 @@ import {
   ServerLastStatus,
   ServerProtocolBadge,
   ServerSshKeyBadge,
-} from './ServerBits';
-import { formatBytes, formatShortDate } from './format';
+  type Server,
+} from '@entities/server';
 
 export type ServerCardProps = {
   server: Server;
@@ -54,7 +56,11 @@ export function ServerCard({ server, onEdit, onDelete }: ServerCardProps) {
             {server.name}
           </span>
         </div>
-        <ServerEnvironmentBadge environment={server.environment} />
+        <div className="flex items-center gap-2">
+          <ServerEnvironmentBadge environment={server.environment} />
+          {/* Главное действие — отдельно от нижней строки иконок, акцентной заливкой. */}
+          <ServerOpenButton server={server} />
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

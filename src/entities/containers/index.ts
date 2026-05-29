@@ -1,4 +1,10 @@
-export { getContainers, useContainersQuery, CONTAINERS_QUERY_KEY } from './api';
+export {
+  getContainers,
+  useContainersQuery,
+  CONTAINERS_QUERY_KEY,
+  useRemoteContainersQuery,
+  REMOTE_CONTAINERS_QUERY_KEY,
+} from './api';
 export { summarizeContainers, containersFootprintBytes } from './model';
 export type {
   ContainersSnapshot,

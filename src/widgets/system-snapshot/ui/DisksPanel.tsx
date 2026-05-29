@@ -19,10 +19,6 @@ type RateSnapshot = {
   byDevice: Record<string, { readBytes: number; writeBytes: number }>;
 };
 
-/**
- * Считает rate (bytes/sec) по дельте между текущим и предыдущим снапшотом для каждой
- * device. Дельта считается на основе ISO разницы времени.
- */
 type IoRates = Record<string, { readRate: number; writeRate: number }>;
 
 function useIoRates(disks: SystemDisks, sampledAt: string): IoRates {
@@ -119,21 +115,13 @@ export function DisksPanel({ disks, sampledAt }: DisksPanelProps) {
         </div>
         {hasUsage ? (
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <StatField
-              label="inodes used"
-              value={formatCount(usage.inodes_used, true)}
-              mono
-            />
-            <StatField
-              label="inodes free"
-              value={formatCount(usage.inodes_free, true)}
-              mono
-            />
+            <StatField label="inodes used" value={formatCount(usage.inodes_used, true)} mono />
+            <StatField label="inodes free" value={formatCount(usage.inodes_free, true)} mono />
           </div>
         ) : null}
       </div>
 
-      {/* Партиции — оставлены как были, чуть компактнее */}
+      {/* Партиции */}
       {sorted.length > 0 ? (
         <ul className="divide-y divide-border-subtle border-t border-border-subtle">
           {sorted.map((p) => {

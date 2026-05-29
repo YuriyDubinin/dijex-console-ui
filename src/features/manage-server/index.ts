@@ -4,8 +4,9 @@ export { ServerConnectButton, ServerPingButton } from './ui/ServerConnectButton'
 export type { ServerConnectButtonProps } from './ui/ServerConnectButton';
 export { ServerInstallKeyButton } from './ui/ServerInstallKeyButton';
 export type { ServerInstallKeyButtonProps } from './ui/ServerInstallKeyButton';
-export {
-  SERVER_ENVIRONMENT_LABELS,
-  SERVER_PROTOCOL_LABELS,
-  SERVER_AUTH_METHOD_LABELS,
-} from './model/schema';
+export { ServerOpenButton } from './ui/ServerOpenButton';
+export type { ServerOpenButtonProps } from './ui/ServerOpenButton';
+export { ServerSshKeyIndicator } from './ui/ServerSshKeyIndicator';
+export type { ServerSshKeyIndicatorProps } from './ui/ServerSshKeyIndicator';
+export { ServerSshKeyDialog } from './ui/ServerSshKeyDialog';
+export type { ServerSshKeyDialogProps } from './ui/ServerSshKeyDialog';

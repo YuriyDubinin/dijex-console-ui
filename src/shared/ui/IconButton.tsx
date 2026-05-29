@@ -12,6 +12,12 @@ const variantClasses = {
     'bg-transparent text-fg-secondary hover:bg-bg-2 hover:text-fg-primary border border-transparent',
   secondary:
     'bg-bg-2 text-fg-primary border border-border-subtle hover:bg-bg-3 hover:border-border-strong',
+  // Акцентная заливка — для одного главного CTA на карточке/строке.
+  primary: [
+    'bg-accent text-accent-on border border-accent',
+    'hover:bg-accent-hover hover:border-accent-hover',
+    'active:bg-accent active:opacity-90',
+  ].join(' '),
 } as const;
 
 export type IconButtonProps = {

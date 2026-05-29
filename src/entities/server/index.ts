@@ -19,9 +19,22 @@ export {
   SERVER_PROTOCOLS,
   SERVER_AUTH_METHODS,
   SERVER_ENVIRONMENTS,
+  SERVER_ENVIRONMENT_LABELS,
+  SERVER_PROTOCOL_LABELS,
+  SERVER_AUTH_METHOD_LABELS,
   describeServerCheck,
   describeServerInstallKey,
 } from './model';
+export {
+  ServerActiveBadge,
+  ServerAuthMethodLabel,
+  ServerCreds,
+  ServerEnvironmentBadge,
+  ServerLastStatus,
+  ServerProtocolBadge,
+  ServerSshKeyBadge,
+} from './ui/ServerBits';
+export { formatBytes, formatShortDate } from './lib/format';
 export type {
   Server,
   ServerProtocol,

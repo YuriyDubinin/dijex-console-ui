@@ -1,9 +1,22 @@
 import { Card, Sparkline, UsageBar } from '@shared/ui';
 import { cn } from '@shared/lib';
-import { formatPercent, type SystemSnapshot } from '@entities/system';
+import {
+  formatPercent,
+  type SystemCpu,
+  type SystemDbPool,
+  type SystemDisks,
+  type SystemMemory,
+} from '@entities/system';
 
 export type KpiGaugesProps = {
-  data: SystemSnapshot;
+  cpu: SystemCpu;
+  memory: SystemMemory;
+  disks: SystemDisks;
+  /**
+   * Опциональный четвёртый Gauge — пул подключений к БД приложения.
+   * На удалённых серверах не передаётся, и сетка автоматически сжимается до 3 колонок.
+   */
+  dbPool?: SystemDbPool;
   sampledAt: string;
 };
 
@@ -44,40 +57,45 @@ function Gauge({ label, caption, value, sampledAt }: GaugeProps) {
   );
 }
 
-export function KpiGauges({ data, sampledAt }: KpiGaugesProps) {
+export function KpiGauges({ cpu, memory, disks, dbPool, sampledAt }: KpiGaugesProps) {
   // Headline-метрика диска — из надёжного disks.usage; fallback на корневую партицию.
-  const usage = data.disks.usage;
-  const rootPartition =
-    data.disks.partitions.find((p) => p.mountpoint === '/') ?? data.disks.partitions[0];
+  const usage = disks.usage;
+  const rootPartition = disks.partitions.find((p) => p.mountpoint === '/') ?? disks.partitions[0];
   const diskPercent = usage?.used_percent ?? rootPartition?.used_percent ?? 0;
   const diskCaption = usage?.path ?? rootPartition?.mountpoint ?? '—';
-  const dbPool = data.database.pool;
-  const dbUtilization = dbPool.max_conns > 0 ? (dbPool.acquired_conns / dbPool.max_conns) * 100 : 0;
+
+  const dbUtilization =
+    dbPool && dbPool.max_conns > 0 ? (dbPool.acquired_conns / dbPool.max_conns) * 100 : 0;
 
   return (
     <section
       aria-label="Live KPIs"
-      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+      className={cn(
+        'grid gap-3 sm:grid-cols-2',
+        dbPool ? 'lg:grid-cols-4' : 'lg:grid-cols-3',
+      )}
     >
       <Gauge
         label="CPU"
-        caption={`${data.cpu.logical_cores} cores`}
-        value={data.cpu.usage_percent}
+        caption={`${cpu.logical_cores} cores`}
+        value={cpu.usage_percent}
         sampledAt={sampledAt}
       />
       <Gauge
         label="Memory"
         caption="virtual"
-        value={data.memory.virtual.used_percent}
+        value={memory.virtual.used_percent}
         sampledAt={sampledAt}
       />
       <Gauge label="Disk" caption={diskCaption} value={diskPercent} sampledAt={sampledAt} />
-      <Gauge
-        label="DB pool"
-        caption={`${dbPool.acquired_conns}/${dbPool.max_conns}`}
-        value={dbUtilization}
-        sampledAt={sampledAt}
-      />
+      {dbPool ? (
+        <Gauge
+          label="DB pool"
+          caption={`${dbPool.acquired_conns}/${dbPool.max_conns}`}
+          value={dbUtilization}
+          sampledAt={sampledAt}
+        />
+      ) : null}
     </section>
   );
 }

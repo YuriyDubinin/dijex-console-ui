@@ -5,7 +5,7 @@ import {
   formatMs,
   type SystemDatabase,
 } from '@entities/system';
-import { PanelTitle } from './PanelTitle';
+import { PanelTitle } from '@widgets/system-snapshot';
 
 export type DatabasePanelProps = {
   database: SystemDatabase;

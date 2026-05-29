@@ -1,9 +1,5 @@
 import { Card, Sparkline, StatField, UsageBar } from '@shared/ui';
-import {
-  formatBytes,
-  formatPercent,
-  type SystemMemory,
-} from '@entities/system';
+import { formatBytes, formatPercent, type SystemMemory } from '@entities/system';
 import { PanelTitle } from './PanelTitle';
 
 export type MemoryPanelProps = {
@@ -36,12 +32,7 @@ export function MemoryPanel({ memory, sampledAt }: MemoryPanelProps) {
           <span>{formatBytes(v.available_bytes)} available</span>
         </div>
         <div className="mt-3">
-          <Sparkline
-            value={v.used_percent}
-            sampledAt={sampledAt}
-            max={100}
-            height={32}
-          />
+          <Sparkline value={v.used_percent} sampledAt={sampledAt} max={100} height={32} />
         </div>
       </div>
 
@@ -73,11 +64,7 @@ export function MemoryPanel({ memory, sampledAt }: MemoryPanelProps) {
             </span>
           </div>
           <div className="mt-2">
-            <UsageBar
-              percent={swap.used_percent}
-              warnThreshold={25}
-              criticalThreshold={50}
-            />
+            <UsageBar percent={swap.used_percent} warnThreshold={25} criticalThreshold={50} />
           </div>
           <p className="mt-1.5 font-mono text-[10px] text-fg-muted">
             {formatPercent(swap.used_percent, 1)} used

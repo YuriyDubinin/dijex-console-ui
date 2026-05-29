@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import {
   SERVER_AUTH_METHODS,
+  SERVER_AUTH_METHOD_LABELS,
   SERVER_ENVIRONMENTS,
+  SERVER_ENVIRONMENT_LABELS,
   SERVER_PROTOCOLS,
-  type ServerAuthMethod,
-  type ServerEnvironment,
-  type ServerProtocol,
+  SERVER_PROTOCOL_LABELS,
 } from '@entities/server';
 
 export const serverFormSchema = z.object({
@@ -35,38 +35,18 @@ export const serverFormSchema = z.object({
 
 export type ServerFormValues = z.infer<typeof serverFormSchema>;
 
-/** Человекочитаемые подписи окружений. */
-export const SERVER_ENVIRONMENT_LABELS: Record<ServerEnvironment, string> = {
-  PRODUCTION: 'Production',
-  STAGING: 'Staging',
-  DEVELOPMENT: 'Development',
-  TESTING: 'Testing',
-  OTHER: 'Other',
-};
+// Подписи (LABELS) живут в @entities/server (общие для display-уровня).
+// Здесь оставляем только OPTIONS-массивы — они UX-специфичны для селектов формы.
 
 export const SERVER_ENVIRONMENT_OPTIONS = SERVER_ENVIRONMENTS.map((e) => ({
   value: e,
   label: SERVER_ENVIRONMENT_LABELS[e],
 }));
 
-/** Подписи протоколов. */
-export const SERVER_PROTOCOL_LABELS: Record<ServerProtocol, string> = {
-  SSH: 'SSH',
-  WINRM: 'WinRM',
-  RDP: 'RDP',
-};
-
 export const SERVER_PROTOCOL_OPTIONS = SERVER_PROTOCOLS.map((p) => ({
   value: p,
   label: SERVER_PROTOCOL_LABELS[p],
 }));
-
-/** Подписи методов аутентификации. */
-export const SERVER_AUTH_METHOD_LABELS: Record<ServerAuthMethod, string> = {
-  PASSWORD: 'Password',
-  PRIVATE_KEY: 'Private key',
-  AGENT: 'SSH agent',
-};
 
 export const SERVER_AUTH_METHOD_OPTIONS = SERVER_AUTH_METHODS.map((m) => ({
   value: m,

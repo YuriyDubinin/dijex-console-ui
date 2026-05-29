@@ -1,12 +1,12 @@
 import { KeyRound, Lock, ShieldCheck, ShieldOff, Terminal } from 'lucide-react';
 import { Chip, Tooltip, type ChipTone } from '@shared/ui';
 import { cn } from '@shared/lib';
-import type { ServerAuthMethod, ServerEnvironment, ServerProtocol } from '@entities/server';
 import {
   SERVER_AUTH_METHOD_LABELS,
   SERVER_ENVIRONMENT_LABELS,
   SERVER_PROTOCOL_LABELS,
-} from '@features/manage-server';
+} from '../model/labels';
+import type { ServerAuthMethod, ServerEnvironment, ServerProtocol } from '../model/types';
 
 const ENV_TONES: Record<ServerEnvironment, ChipTone> = {
   PRODUCTION: 'accent',

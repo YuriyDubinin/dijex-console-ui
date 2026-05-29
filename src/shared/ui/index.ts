@@ -6,6 +6,8 @@ export { Input } from './Input';
 export type { InputProps } from './Input';
 export { Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';
+export { Country } from './Country';
+export type { CountryProps } from './Country';
 export { Select } from './Select';
 export type { SelectProps, SelectOption } from './Select';
 export { Checkbox } from './Checkbox';

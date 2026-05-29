@@ -5,7 +5,7 @@ import {
   formatUptime,
   type SystemProcess,
 } from '@entities/system';
-import { PanelTitle } from './PanelTitle';
+import { PanelTitle } from '@widgets/system-snapshot';
 
 export type ProcessPanelProps = {
   process: SystemProcess;

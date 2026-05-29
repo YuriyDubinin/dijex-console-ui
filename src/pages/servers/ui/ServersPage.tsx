@@ -19,9 +19,19 @@ import {
 import { useDocumentTitle } from '@shared/lib';
 import { PageHeader } from '@widgets/page-header';
 import {
+  formatShortDate,
   SERVER_AUTH_METHODS,
+  SERVER_AUTH_METHOD_LABELS,
   SERVER_ENVIRONMENTS,
+  SERVER_ENVIRONMENT_LABELS,
   SERVER_PROTOCOLS,
+  SERVER_PROTOCOL_LABELS,
+  ServerActiveBadge,
+  ServerCreds,
+  ServerEnvironmentBadge,
+  ServerLastStatus,
+  ServerProtocolBadge,
+  ServerSshKeyBadge,
   useDeleteServer,
   useServersQuery,
   type Server,
@@ -36,21 +46,10 @@ import {
   ServerConnectButton,
   ServerFormDialog,
   ServerInstallKeyButton,
+  ServerOpenButton,
   ServerPingButton,
-  SERVER_AUTH_METHOD_LABELS,
-  SERVER_ENVIRONMENT_LABELS,
-  SERVER_PROTOCOL_LABELS,
 } from '@features/manage-server';
 import { ServerCard } from './ServerCard';
-import {
-  ServerActiveBadge,
-  ServerCreds,
-  ServerEnvironmentBadge,
-  ServerLastStatus,
-  ServerProtocolBadge,
-  ServerSshKeyBadge,
-} from './ServerBits';
-import { formatShortDate } from './format';
 
 const PAGE_SIZE = 20;
 
@@ -239,6 +238,17 @@ export function ServersPage() {
         align: 'right',
         cell: (s) => (
           <span className="font-mono text-[11px] text-fg-muted">{formatShortDate(s.created_at)}</span>
+        ),
+      },
+      {
+        key: 'open',
+        header: 'Open',
+        align: 'center',
+        cellClassName: 'w-0 whitespace-nowrap',
+        cell: (s) => (
+          <span className="inline-flex justify-center">
+            <ServerOpenButton server={s} />
+          </span>
         ),
       },
       {

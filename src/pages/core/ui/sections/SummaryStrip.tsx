@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Boxes, Cpu, Globe } from 'lucide-react';
-import { Chip } from '@shared/ui';
+import { Chip, Country } from '@shared/ui';
 import { cn } from '@shared/lib';
 import {
   deriveHealth,
@@ -12,7 +12,7 @@ import {
   type SystemSnapshot,
 } from '@entities/system';
 import { SshKeyIndicator } from '@features/manage-ssh-key';
-import { LiveIndicator } from './LiveIndicator';
+import { LiveIndicator } from '@widgets/system-snapshot';
 
 export type SummaryStripProps = {
   data: SystemSnapshot;
@@ -55,6 +55,26 @@ function OsBadge({ host }: { host: SystemHost }) {
       {version ? <span className="font-mono text-[11px] text-fg-muted">{version}</span> : null}
       <span className="text-fg-muted/50">/</span>
       <span className="font-mono text-[11px] text-fg-muted">{host.kernel_arch}</span>
+    </span>
+  );
+}
+
+/**
+ * Бейдж страны сервера по host.country_code/host.country.
+ * Если поля не пришли (приватный IP / нет в базе DB-IP) — показываем «—»,
+ * чтобы ряд капсул в панели визуально не «прыгал» между запросами.
+ */
+function CountryBadge({ host }: { host: SystemHost }) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-md border border-border-subtle bg-bg-2 px-2.5 py-1">
+      <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">GEO</span>
+      <Country
+        code={host.country_code}
+        name={host.country}
+        size={18}
+        variant="name"
+        fallback={<span className="font-mono text-xs text-fg-muted">—</span>}
+      />
     </span>
   );
 }
@@ -167,6 +187,7 @@ export function SummaryStrip({ data, fetching, pollIntervalMs }: SummaryStripPro
       {/* Нижняя строка: окружение и сеть. Все элементы — выровненные «капсулы». */}
       <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-border-subtle pt-3">
         <OsBadge host={host} />
+        <CountryBadge host={host} />
         <IpBadge host={host} />
         <UptimeBadge seconds={liveUptime} />
         <DockerBadge engine={docker?.engine} compose={docker?.compose} />

@@ -8,6 +8,7 @@ export {
   useDeleteSshKey,
   SSH_KEY_QUERY_KEY,
 } from './api';
+export { getRemoteSystem, useRemoteSystemQuery, REMOTE_SYSTEM_QUERY_KEY } from './api';
 export {
   formatBytes,
   formatBytesPerSecond,
@@ -52,4 +53,7 @@ export type {
   SshKeyState,
   SshCheckResult,
   SshDeleteResponse,
+  RemoteSystemConnection,
+  RemoteSystemSnapshot,
+  RemoteSystemResult,
 } from './model';

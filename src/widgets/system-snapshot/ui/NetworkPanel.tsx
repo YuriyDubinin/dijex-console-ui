@@ -124,7 +124,12 @@ export function NetworkPanel({ network, sampledAt }: NetworkPanelProps) {
         <StatField label="interfaces" value={network.interfaces.length} mono />
       </div>
 
-      <ul className="divide-y divide-border-subtle border-t border-border-subtle">
+      {/*
+        Список интерфейсов: при большом количестве (>~4 рядов) ограничиваем
+        высоту и включаем скролл — иначе панель растягивается и ломает
+        двухколоночную раскладку Disks/Network в виде «равной высоты».
+      */}
+      <ul className="max-h-[260px] divide-y divide-border-subtle overflow-y-auto border-t border-border-subtle pr-1">
         {sorted.map((iface) => {
           const isUp = iface.flags.includes('up') || iface.flags.includes('running');
           const counter = network.io_counters.find((c) => c.name === iface.name);
@@ -134,9 +139,7 @@ export function NetworkPanel({ network, sampledAt }: NetworkPanelProps) {
             <li key={iface.name} className="py-2.5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <div className="flex min-w-0 items-baseline gap-2">
-                  <span className="truncate font-mono text-xs text-fg-primary">
-                    {iface.name}
-                  </span>
+                  <span className="truncate font-mono text-xs text-fg-primary">{iface.name}</span>
                   <Chip tone={isUp ? 'success' : 'neutral'} mono>
                     {isUp ? 'UP' : 'DOWN'}
                   </Chip>

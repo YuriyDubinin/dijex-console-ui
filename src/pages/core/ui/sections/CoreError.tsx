@@ -1,6 +1,6 @@
 import { Card, Button } from '@shared/ui';
 import { ApiError } from '@shared/api';
-import { PanelTitle } from './PanelTitle';
+import { PanelTitle } from '@widgets/system-snapshot';
 
 export type CoreErrorProps = {
   error: unknown;

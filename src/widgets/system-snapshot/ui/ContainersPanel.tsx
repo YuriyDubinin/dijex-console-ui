@@ -5,11 +5,17 @@ import { formatBytes, formatCount } from '@entities/system';
 import {
   containersFootprintBytes,
   summarizeContainers,
-  useContainersQuery,
   type ContainerStateSummary,
   type ContainersSnapshot,
 } from '@entities/containers';
 import { PanelTitle } from './PanelTitle';
+
+export type ContainersPanelProps = {
+  /** Снапшот контейнеров. Для remote синтезируется `select`-функцией в хуке. */
+  data: ContainersSnapshot | undefined;
+  isLoading: boolean;
+  error: Error | null;
+};
 
 type Segment = {
   key: keyof Omit<ContainerStateSummary, 'total'>;
@@ -160,9 +166,13 @@ function ContainersLoading() {
   );
 }
 
-export function ContainersPanel() {
-  const { data, isLoading, error } = useContainersQuery();
-
+/**
+ * Презентационная панель Containers. Источник данных — внешний хук:
+ *  - Core/Main → useContainersQuery() (локальный /api/system/containers);
+ *  - Server/Main → useRemoteContainersQuery(serverId) (удалённый, с `select`,
+ *    который синтезирует unavailable-снимок при SSH-провале).
+ */
+export function ContainersPanel({ data, isLoading, error }: ContainersPanelProps) {
   const engineVersion = data?.available && data.engine ? `v${data.engine.version}` : null;
 
   return (

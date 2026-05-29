@@ -18,6 +18,10 @@ export type SystemHost = {
   primary_ip?: string;
   /** Публичный (внешний) IP сервера — то, что показываем как «IP сервера». Может быть пустым. */
   public_ip?: string;
+  /** ISO 3166-1 alpha-2 (верхний регистр) по public_ip. Опциональный — пары может не быть. */
+  country_code?: string;
+  /** Английское имя страны (из mmdb). Идёт парой с country_code. */
+  country?: string;
   os: 'linux' | 'darwin' | 'windows' | string;
   platform: string;
   platform_family: string;

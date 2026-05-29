@@ -1,4 +1,9 @@
 export { SERVER_PROTOCOLS, SERVER_AUTH_METHODS, SERVER_ENVIRONMENTS } from './types';
+export {
+  SERVER_ENVIRONMENT_LABELS,
+  SERVER_PROTOCOL_LABELS,
+  SERVER_AUTH_METHOD_LABELS,
+} from './labels';
 export { describeServerCheck, describeServerInstallKey } from './check';
 export type { CheckTone } from './check';
 export type {

@@ -1,7 +1,7 @@
 import { Card, Skeleton } from '@shared/ui';
 
-/** Первая загрузка — каркас в правильной форме, без mock-чисел. */
-export function CoreSkeleton() {
+/** Первая загрузка снимка системы (Core/Main или remote) — каркас в правильной форме, без mock-чисел. */
+export function SystemSnapshotSkeleton() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-12 w-full" />

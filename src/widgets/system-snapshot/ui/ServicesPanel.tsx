@@ -10,11 +10,17 @@ import {
   servicesTotalMemoryBytes,
   servicesTotalTasks,
   summarizeServices,
-  useServicesQuery,
   type ServiceStateSummary,
   type ServicesSnapshot,
 } from '@entities/services';
 import { PanelTitle } from './PanelTitle';
+
+export type ServicesPanelProps = {
+  /** Снапшот сервисов. Для remote синтезируется `select`-функцией в хуке. */
+  data: ServicesSnapshot | undefined;
+  isLoading: boolean;
+  error: Error | null;
+};
 
 type Segment = {
   key: keyof Omit<ServiceStateSummary, 'total'>;
@@ -208,9 +214,13 @@ function ServicesLoading() {
   );
 }
 
-export function ServicesPanel() {
-  const { data, isLoading, error } = useServicesQuery();
-
+/**
+ * Презентационная панель Services. Источник данных — внешний хук:
+ *  - Core/Main → useServicesQuery() (локальный /api/system/services);
+ *  - Server/Main → useRemoteServicesQuery(serverId) (удалённый, с `select`,
+ *    который синтезирует unavailable-снимок при SSH-провале).
+ */
+export function ServicesPanel({ data, isLoading, error }: ServicesPanelProps) {
   const managerVersion =
     data?.available && data.manager ? `systemd ${data.manager.version}` : null;
 
