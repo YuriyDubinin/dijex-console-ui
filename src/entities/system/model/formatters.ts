@@ -88,3 +88,28 @@ export function shortSha(sha: string | undefined | null, length = 7): string {
   if (!sha) return '—';
   return sha.slice(0, length);
 }
+
+/**
+ * ISO → относительное время вида "3d ago" / "2h ago" / "12m ago" / "just now".
+ * Возвращает прочерк для пустых/невалидных значений.
+ */
+export function formatRelative(iso: string | undefined | null, now: Date = new Date()): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const diffMs = now.getTime() - d.getTime();
+  if (diffMs < 0) return 'in the future';
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 5) return 'just now';
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}d ago`;
+  const mo = Math.floor(day / 30);
+  if (mo < 12) return `${mo}mo ago`;
+  const yr = Math.floor(day / 365);
+  return `${yr}y ago`;
+}

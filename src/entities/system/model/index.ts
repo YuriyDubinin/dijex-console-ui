@@ -33,6 +33,7 @@ export {
   formatNs,
   formatMhz,
   formatIsoUtc,
+  formatRelative,
   shortSha,
 } from './formatters';
 

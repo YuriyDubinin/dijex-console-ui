@@ -13,7 +13,9 @@ export {
   useConnectServer,
   usePingServer,
   useInstallServerKey,
+  usePingPolling,
   SERVERS_QUERY_KEY,
+  SERVER_PING_POLLING_KEY,
 } from './api';
 export {
   SERVER_PROTOCOLS,

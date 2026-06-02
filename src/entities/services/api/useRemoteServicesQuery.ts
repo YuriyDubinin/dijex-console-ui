@@ -26,7 +26,7 @@ async function getRemoteServices(
   signal?: AbortSignal,
 ): Promise<RemoteServicesResult> {
   const raw = await api.post<RemoteServicesResult>(
-    '/api/servers/remote/system/services',
+    '/api/servers/remote/system/services/list',
     { id },
     { signal },
   );

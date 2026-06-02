@@ -8,6 +8,8 @@ export type {
   ContainerMount,
   ContainerNetwork,
   ContainerLimits,
+  ImageInfo,
+  ImagesSnapshot,
 } from './types';
 
 export { summarizeContainers, containersFootprintBytes } from './summary';

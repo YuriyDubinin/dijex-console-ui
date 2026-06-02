@@ -26,7 +26,7 @@ async function getRemoteContainers(
   signal?: AbortSignal,
 ): Promise<RemoteContainersResult> {
   const raw = await api.post<RemoteContainersResult>(
-    '/api/servers/remote/system/containers',
+    '/api/servers/remote/system/containers/list',
     { id },
     { signal },
   );

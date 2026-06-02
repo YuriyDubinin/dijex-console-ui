@@ -92,7 +92,7 @@ export function ServerDetailPage() {
       <ServerDetailTabs active={tab} onChange={onTabChange} />
 
       <div role="tabpanel">
-        {tab === 'main' ? <ServerMainTab server={server} /> : <ServerCicdTab />}
+        {tab === 'main' ? <ServerMainTab server={server} /> : <ServerCicdTab server={server} />}
       </div>
     </div>
   );

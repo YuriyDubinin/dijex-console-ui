@@ -4,6 +4,9 @@ export {
   CONTAINERS_QUERY_KEY,
   useRemoteContainersQuery,
   REMOTE_CONTAINERS_QUERY_KEY,
+  getImages,
+  useImagesQuery,
+  IMAGES_QUERY_KEY,
 } from './api';
 export { summarizeContainers, containersFootprintBytes } from './model';
 export type {
@@ -17,4 +20,6 @@ export type {
   ContainerNetwork,
   ContainerLimits,
   ContainerStateSummary,
+  ImageInfo,
+  ImagesSnapshot,
 } from './model';

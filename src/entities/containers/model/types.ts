@@ -116,3 +116,35 @@ export type ContainersSnapshot = {
   containers: ContainerInfo[];
   errors?: string[];
 };
+
+/** Один Docker-образ. */
+export type ImageInfo = {
+  /** Полный sha256, формат "sha256:<hex>". */
+  id: string;
+  /** Первые 12 hex после sha256: для UI. */
+  short_id: string;
+  parent_id?: string;
+  /** Теги вида `nginx:1.27`. Пустой массив или отсутствует → образ висячий. */
+  repo_tags?: string[];
+  /** Манифест-дайджесты вида `nginx@sha256:...`. */
+  repo_digests?: string[];
+  created: string;
+  size_bytes: number;
+  /** Байт, общих со слоями других образов. Для remote всегда 0/отсутствует. */
+  shared_size?: number;
+  labels?: Record<string, string>;
+  /** Сколько контейнеров используют этот образ (включая остановленные). */
+  containers: number;
+  /** true, если у образа нет тегов (только digest/ID). */
+  dangling: boolean;
+};
+
+export type ImagesSnapshot = {
+  available: boolean;
+  reason?: string;
+  collected_at: string;
+  engine: ContainerEngine | null;
+  count: number;
+  images: ImageInfo[];
+  errors?: string[];
+};

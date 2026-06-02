@@ -19,6 +19,7 @@ export {
   formatNs,
   formatMhz,
   formatIsoUtc,
+  formatRelative,
   shortSha,
   deriveHealth,
   healthTone,

@@ -10,8 +10,8 @@ export type ServerOpenButtonProps = {
 
 /**
  * Главное действие на карточке/строке сервера — открыть страницу сервера
- * с вкладками Main / CI-CD. Визуально выделена акцентной заливкой,
- * чтобы отличаться от ghost-иконок connect/ping/edit/delete.
+ * с вкладками Main / CI-CD. Визуально выделена акцентным **ободком и иконкой**
+ * (без заливки), чтобы отличаться от ghost-иконок connect/ping/edit/delete.
  *
  * Активна только когда сервер подключён (`is_active === true`). В выключенном
  * состоянии тултип объясняет, почему действие недоступно.
@@ -26,9 +26,11 @@ export function ServerOpenButton({ server, size = 'sm' }: ServerOpenButtonProps)
       <IconButton
         aria-label={tooltip}
         size={size}
-        variant="primary"
         disabled={!enabled}
         onClick={() => navigate(`/servers/${server.id}`)}
+        // Акцентный ободок + акцентная иконка, без фона. Hover оставляем
+        // тонким accent-muted, чтобы при наведении не превращался в обычную ghost-иконку.
+        className="border-accent text-accent hover:bg-accent-muted hover:text-accent"
       >
         <LogIn size={13} aria-hidden />
       </IconButton>
