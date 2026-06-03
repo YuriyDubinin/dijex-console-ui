@@ -2,12 +2,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { Boxes, Image as ImageIcon, Search } from 'lucide-react';
 import { ApiError } from '@shared/api';
 import { Chip, Dialog, Input, Spinner } from '@shared/ui';
+import { cn } from '@shared/lib';
 import { formatBytes, formatRelative } from '@entities/system';
 import { useImagesQuery, type ImageInfo, type ImagesSnapshot } from '@entities/containers';
 
 export type HostImagesDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /**
+   * Если передан — строки в списке становятся кликабельными, и клик по строке
+   * вызывает колбэк (а вызывающая сторона обычно закрывает диалог).
+   */
+  onSelect?: (image: ImageInfo) => void;
 };
 
 function sortImages(images: ImageInfo[]): ImageInfo[] {
@@ -20,16 +26,44 @@ function sortImages(images: ImageInfo[]): ImageInfo[] {
   });
 }
 
-function ImageRow({ image }: { image: ImageInfo }) {
+function ImageRow({
+  image,
+  onSelect,
+}: {
+  image: ImageInfo;
+  onSelect?: (img: ImageInfo) => void;
+}) {
   const [labelsOpen, setLabelsOpen] = useState(false);
   const tags = image.repo_tags ?? [];
   const primaryTag = tags[0];
   const extraTags = tags.length - 1;
   const labels = image.labels ?? {};
   const labelEntries = Object.entries(labels);
+  const interactive = !!onSelect;
+  const handlePick = () => onSelect?.(image);
 
   return (
-    <li className="border-t border-border-subtle py-3 first:border-t-0">
+    <li
+      className={cn(
+        'border-t border-border-subtle py-3 first:border-t-0',
+        interactive &&
+          '-mx-2 cursor-pointer rounded-md px-2 transition-colors hover:bg-bg-2 focus-visible:bg-bg-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+      )}
+      onClick={interactive ? handlePick : undefined}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handlePick();
+              }
+            }
+          : undefined
+      }
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={interactive ? `Select image ${primaryTag ?? image.short_id}` : undefined}
+    >
       {/* Шапка строки */}
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <div className="flex min-w-0 items-center gap-2">
@@ -97,7 +131,10 @@ function ImageRow({ image }: { image: ImageInfo }) {
         <div className="mt-2 flex flex-wrap items-baseline gap-1.5">
           <button
             type="button"
-            onClick={() => setLabelsOpen((v) => !v)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setLabelsOpen((v) => !v);
+            }}
             className="font-mono text-[10px] uppercase tracking-wider text-fg-muted hover:text-fg-secondary"
           >
             labels ({labelEntries.length}) {labelsOpen ? '▾' : '▸'}
@@ -126,11 +163,13 @@ function Body({
   error,
   data,
   search,
+  onSelect,
 }: {
   isLoading: boolean;
   error: unknown;
   data: ImagesSnapshot | undefined;
   search: string;
+  onSelect?: (img: ImageInfo) => void;
 }) {
   if (isLoading && !data) {
     return (
@@ -195,7 +234,7 @@ function Body({
   return (
     <ul>
       {filtered.map((img) => (
-        <ImageRow key={img.id} image={img} />
+        <ImageRow key={img.id} image={img} onSelect={onSelect} />
       ))}
     </ul>
   );
@@ -207,7 +246,7 @@ function Body({
  * поиск сверху + детальные строки образов (тег, short_id, размер, created, лейблы,
  * дайджесты, счётчик использующих контейнеров, метка `dangling`).
  */
-export function HostImagesDialog({ open, onOpenChange }: HostImagesDialogProps) {
+export function HostImagesDialog({ open, onOpenChange, onSelect }: HostImagesDialogProps) {
   const [search, setSearch] = useState('');
   const { data, isLoading, isFetching, error } = useImagesQuery();
 
@@ -239,7 +278,13 @@ export function HostImagesDialog({ open, onOpenChange }: HostImagesDialogProps) 
           aria-label="Search images"
           disabled={isLoading && !data}
         />
-        <Body isLoading={isLoading || isFetching} error={error} data={data} search={search} />
+        <Body
+          isLoading={isLoading || isFetching}
+          error={error}
+          data={data}
+          search={search}
+          onSelect={onSelect}
+        />
       </div>
     </Dialog>
   );

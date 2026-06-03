@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Boxes, ChevronDown, Container as ContainerIcon } from 'lucide-react';
+import { Boxes, ChevronDown, Container as ContainerIcon, Lock, X } from 'lucide-react';
 import {
   Card,
   Chip,
@@ -16,8 +16,14 @@ import {
   useRemoteContainersQuery,
   type ContainerInfo,
 } from '@entities/containers';
+import {
+  useRegistriesQuery,
+  type Registry,
+  type RegistryImage,
+} from '@entities/registry';
 import { usePingPolling, type Server } from '@entities/server';
-import { HostImagesDialog, LiveIndicator } from '@widgets/system-snapshot';
+import { RegistryImagesDialog } from '@features/manage-registry';
+import { LiveIndicator } from '@widgets/system-snapshot';
 import { ContainerCard, PortChip, StateIcon } from './ContainerCard';
 
 export type ServerCicdTabProps = {
@@ -61,42 +67,128 @@ function CicdLivePill({
   );
 }
 
-// ---------- Кнопка-«селект» Images ----------
+// ---------- Полноширинный селектор образа (пустой / выбранный) ----------
 
 /**
- * Выглядит как невыбранный селект (бордер + chevron справа). Лейбл «Images»
- * сверху. По клику открывается модалка `HostImagesDialog` со списком
- * Docker-образов с локальной машины (GET /api/system/images/list).
+ * Полноширинный селектор образа. Два состояния:
+ *  - empty: пунктирная рамка, плейсхолдер «pick an image…»;
+ *  - selected: акцентная рамка, контент в стиле строки `RegistryImagesDialog`
+ *    (имя, теги, private/public, tag count, последнее обновление) + кнопка сброса.
+ * Клик по строке (везде кроме ×) открывает модалку выбора.
  */
-function ImagesSelect({ onOpen }: { onOpen: () => void }) {
-  return (
-    <div className="flex max-w-md flex-col gap-1.5">
-      <Label htmlFor="server-cicd-images-select">Images</Label>
+function ImagePickerRow({
+  image,
+  disabled,
+  placeholder,
+  onPick,
+  onClear,
+}: {
+  image: RegistryImage | null;
+  disabled?: boolean;
+  placeholder?: string;
+  onPick: () => void;
+  onClear: () => void;
+}) {
+  if (!image) {
+    return (
       <button
-        id="server-cicd-images-select"
         type="button"
-        onClick={onOpen}
+        onClick={onPick}
+        disabled={disabled}
         className={cn(
-          'inline-flex w-full items-center justify-between gap-2 rounded-md border bg-bg-1 px-3 py-2 text-sm',
+          'flex w-full items-center justify-between gap-3 rounded-md border border-dashed bg-bg-1 px-3 py-3 text-left',
+          'border-border-subtle text-fg-muted',
           'transition-colors duration-150 ease-out',
-          'border-border-subtle hover:border-border-strong',
+          'hover:border-border-strong hover:text-fg-secondary hover:bg-bg-2',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-bg-0',
-          'text-fg-muted hover:text-fg-secondary',
+          'disabled:cursor-not-allowed disabled:opacity-60',
         )}
       >
-        <span className="inline-flex items-center gap-2">
+        <span className="inline-flex min-w-0 items-center gap-2">
           <Boxes size={14} aria-hidden />
-          <span className="font-mono text-xs">Browse host images…</span>
+          <span className="truncate font-mono text-xs">
+            {placeholder ?? 'Pick an image to filter containers…'}
+          </span>
         </span>
-        <ChevronDown size={14} aria-hidden />
+        <ChevronDown size={14} aria-hidden className="shrink-0" />
+      </button>
+    );
+  }
+
+  const tags = image.tags ?? [];
+  const firstTag = tags[0];
+  const extraTags = Math.max(0, tags.length - 1);
+
+  return (
+    <div className="flex items-start gap-3 rounded-md border border-accent/40 bg-bg-1 px-3 py-3">
+      {/* Клик по основной области = переоткрыть модалку */}
+      <button
+        type="button"
+        onClick={onPick}
+        aria-label="Change selected image"
+        className={cn(
+          'flex min-w-0 flex-1 flex-col gap-1.5 text-left',
+          'focus:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-accent',
+        )}
+      >
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <span className="truncate font-mono text-sm text-fg-primary" title={image.name}>
+              {image.name}
+            </span>
+            {image.is_private != null ? (
+              <Chip tone={image.is_private ? 'warning' : 'neutral'} mono>
+                {image.is_private ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Lock size={10} aria-hidden /> private
+                  </span>
+                ) : (
+                  'public'
+                )}
+              </Chip>
+            ) : null}
+            {firstTag ? (
+              <Chip tone="accent" mono>
+                {firstTag}
+              </Chip>
+            ) : null}
+            {extraTags > 0 ? (
+              <span
+                className="font-mono text-[10px] text-fg-muted"
+                title={tags.slice(1).join('\n')}
+              >
+                +{extraTags} {extraTags === 1 ? 'tag' : 'tags'}
+              </span>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap items-baseline gap-2 font-mono text-[11px] tabular-nums text-fg-muted">
+            <span>
+              {image.tag_count} tag{image.tag_count === 1 ? '' : 's'}
+            </span>
+            {image.last_updated ? <span>· updated {formatRelative(image.last_updated)}</span> : null}
+          </div>
+        </div>
+      </button>
+
+      <button
+        type="button"
+        onClick={onClear}
+        aria-label="Clear selected image"
+        className={cn(
+          'shrink-0 self-start rounded-md p-1 text-fg-muted',
+          'transition-colors duration-150 ease-out',
+          'hover:bg-bg-2 hover:text-fg-primary',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+        )}
+      >
+        <X size={14} aria-hidden />
       </button>
     </div>
   );
 }
 
-// ---------- DataView таблицы/карточек контейнеров ----------
+// ---------- Сортировка / стейт-чипы ----------
 
-/** Сортировка: running → restarting → paused → created → exited → dead. */
 function statePriority(s: string): number {
   switch (s) {
     case 'running':
@@ -227,6 +319,34 @@ function containerColumns(): DataColumn<ContainerInfo>[] {
   ];
 }
 
+/**
+ * Контейнер относится к выбранному registry-образу. Матчим по строковому
+ * совпадению: контейнерный image-reference содержит имя из каталога (или его
+ * последний сегмент). Это нестрого, но в реальности достаточно: regenerated
+ * локальный hash образа никогда не совпадёт с тегом из registry-каталога,
+ * поэтому матчим по имени, а не по sha.
+ */
+function containerMatchesRegistryImage(c: ContainerInfo, img: RegistryImage): boolean {
+  const cImage = (c.image ?? '').toLowerCase();
+  const imgName = (img.name ?? '').toLowerCase();
+  if (!cImage || !imgName) return false;
+  if (cImage.includes(imgName)) return true;
+  const lastSeg = imgName.split('/').pop();
+  if (lastSeg && cImage.includes(lastSeg)) return true;
+  return false;
+}
+
+/** Выбор регистри для модалки: default → первый активный → первый из списка. */
+function pickRegistry(registries: Registry[]): Registry | null {
+  if (registries.length === 0) return null;
+  return (
+    registries.find((r) => r.is_default) ??
+    registries.find((r) => r.is_active) ??
+    registries[0] ??
+    null
+  );
+}
+
 // ---------- Корневая вкладка ----------
 
 export function ServerCicdTab({ server }: ServerCicdTabProps) {
@@ -234,8 +354,16 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
   const pingQ = usePingPolling(server.id);
   // Контейнеры этого сервера (через SSH).
   const containersQ = useRemoteContainersQuery(server.id);
+  // Список зарегистрированных Docker Registry — нужен, чтобы выбрать, у какого
+  // спрашивать каталог образов. Берём default → active → первый из списка.
+  const registriesQ = useRegistriesQuery({ page: 1, page_size: 100 });
+  const registry = useMemo(
+    () => pickRegistry(registriesQ.data?.items ?? []),
+    [registriesQ.data],
+  );
 
   const [imagesOpen, setImagesOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<RegistryImage | null>(null);
   // Выбор «таблица / карточки» переживает перезагрузку.
   const [view, setView] = usePersistentState<ViewMode>(
     'page.server-cicd.containers.view',
@@ -246,12 +374,15 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
   const data = containersQ.data;
   const sorted = useMemo(() => {
     const list = data?.containers ?? [];
-    return [...list].sort((a, b) => {
+    const filtered = selectedImage
+      ? list.filter((c) => containerMatchesRegistryImage(c, selectedImage))
+      : list;
+    return [...filtered].sort((a, b) => {
       const ps = statePriority(a.state) - statePriority(b.state);
       if (ps !== 0) return ps;
       return a.name.localeCompare(b.name);
     });
-  }, [data]);
+  }, [data, selectedImage]);
 
   const columns = useMemo(() => containerColumns(), []);
 
@@ -264,12 +395,42 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
           fetching={pingQ.isFetching}
         />
 
-        <ImagesSelect onOpen={() => setImagesOpen(true)} />
-        <HostImagesDialog open={imagesOpen} onOpenChange={setImagesOpen} />
+        <div className="flex flex-col gap-1.5">
+          <Label>Images</Label>
+          <ImagePickerRow
+            image={selectedImage}
+            disabled={!registry}
+            placeholder={
+              registry
+                ? `Pick an image from ${registry.name} to filter containers…`
+                : 'No registries configured — add one to browse images'
+            }
+            onPick={() => setImagesOpen(true)}
+            onClear={() => setSelectedImage(null)}
+          />
+        </div>
+        {registry ? (
+          <RegistryImagesDialog
+            open={imagesOpen}
+            onOpenChange={setImagesOpen}
+            registry={registry}
+            onSelect={(img) => {
+              setSelectedImage(img);
+              setImagesOpen(false);
+            }}
+          />
+        ) : null}
 
         {/* Контейнеры: тулбар + DataView (таблица / карточки) */}
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <Label>Containers</Label>
+          <Label>
+            Containers
+            {selectedImage ? (
+              <span className="ml-2 font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+                · filtered by image
+              </span>
+            ) : null}
+          </Label>
           <ViewToggle value={view} onChange={setView} />
         </div>
 
@@ -297,7 +458,11 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
               <Card>
                 <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
                   <ContainerIcon size={20} aria-hidden className="text-fg-muted" />
-                  <p className="font-mono text-xs text-fg-muted">No containers on this host</p>
+                  <p className="font-mono text-xs text-fg-muted">
+                    {selectedImage
+                      ? 'No containers built from this image on the host'
+                      : 'No containers on this host'}
+                  </p>
                 </div>
               </Card>
             }

@@ -100,16 +100,22 @@ export function ContainerCard({ container }: ContainerCardProps) {
 
   return (
     <Card className={cn('flex h-full flex-col gap-2.5 border-l-2 transition-colors', borderClass)}>
-      {/* Шапка: имя + state + здоровье + рестарты */}
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <div className="flex min-w-0 items-center gap-2">
-          <ContainerIcon size={13} aria-hidden className="text-fg-muted" />
-          <span className="truncate font-mono text-sm text-fg-primary" title={container.name}>
+      {/* Шапка: имя + state + здоровье + рестарты.
+          На узких экранах имя занимает свою строку, чипы переносятся ниже. */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1.5">
+        <div className="flex min-w-0 flex-1 basis-full items-center gap-2 sm:basis-auto">
+          <ContainerIcon size={13} aria-hidden className="shrink-0 text-fg-muted" />
+          <span
+            className="min-w-0 truncate font-mono text-sm text-fg-primary"
+            title={container.name}
+          >
             {container.name}
           </span>
-          <span className="font-mono text-[10px] text-fg-muted">{container.short_id}</span>
+          <span className="shrink-0 font-mono text-[10px] text-fg-muted">
+            {container.short_id}
+          </span>
         </div>
-        <div className="flex shrink-0 items-baseline gap-1.5">
+        <div className="flex flex-wrap items-baseline gap-1.5">
           <Chip tone={tone} mono>
             <span className="inline-flex items-center gap-1">
               <StateIcon state={container.state} restarting={container.restarting} />
@@ -144,13 +150,21 @@ export function ContainerCard({ container }: ContainerCardProps) {
       </div>
 
       {/* Образ */}
-      <div className="flex min-w-0 items-baseline gap-2">
-        <span className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">image</span>
-        <span className="truncate font-mono text-xs text-fg-secondary" title={container.image}>
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-fg-muted">
+          image
+        </span>
+        <span
+          className="min-w-0 max-w-full truncate font-mono text-xs text-fg-secondary"
+          title={container.image}
+        >
           {container.image}
         </span>
         {container.image_id ? (
-          <span className="font-mono text-[10px] text-fg-muted" title={container.image_id}>
+          <span
+            className="shrink-0 font-mono text-[10px] text-fg-muted"
+            title={container.image_id}
+          >
             {container.image_id.replace(/^sha256:/, '').slice(0, 12)}
           </span>
         ) : null}

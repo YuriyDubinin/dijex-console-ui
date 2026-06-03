@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Download, Image as ImageIcon, Lock, Search, Star } from 'lucide-react';
 import { ApiError } from '@shared/api';
 import { Chip, Dialog, Input, Spinner } from '@shared/ui';
+import { cn } from '@shared/lib';
 import {
   useRegistryImagesQuery,
   type Registry,
@@ -13,6 +14,11 @@ export type RegistryImagesDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   registry: Registry;
+  /**
+   * Если передан — строки списка становятся кликабельными, и клик по строке
+   * вызывает колбэк (вызывающая сторона обычно закрывает диалог).
+   */
+  onSelect?: (image: RegistryImage) => void;
 };
 
 function fmtNum(n?: number): string {
@@ -46,9 +52,38 @@ function errorMessage(err: unknown): string {
   return 'Failed to load images.';
 }
 
-function ImageRow({ image }: { image: RegistryImage }) {
+function ImageRow({
+  image,
+  onSelect,
+}: {
+  image: RegistryImage;
+  onSelect?: (img: RegistryImage) => void;
+}) {
+  const interactive = !!onSelect;
+  const handlePick = () => onSelect?.(image);
+
   return (
-    <li className="border-t border-border-subtle py-3 first:border-t-0">
+    <li
+      className={cn(
+        'border-t border-border-subtle py-3 first:border-t-0',
+        interactive &&
+          '-mx-2 cursor-pointer rounded-md px-2 transition-colors hover:bg-bg-2 focus-visible:bg-bg-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+      )}
+      onClick={interactive ? handlePick : undefined}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handlePick();
+              }
+            }
+          : undefined
+      }
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={interactive ? `Select image ${image.name}` : undefined}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 truncate">
           <span className="truncate font-mono text-sm text-fg-primary">{image.name}</span>
@@ -102,11 +137,13 @@ function Body({
   error,
   data,
   search,
+  onSelect,
 }: {
   isLoading: boolean;
   error: unknown;
   data: RegistryImagesResponse | undefined;
   search: string;
+  onSelect?: (img: RegistryImage) => void;
 }) {
   if (isLoading && !data) {
     return (
@@ -141,13 +178,18 @@ function Body({
   return (
     <ul>
       {filtered.map((img) => (
-        <ImageRow key={img.name} image={img} />
+        <ImageRow key={img.name} image={img} onSelect={onSelect} />
       ))}
     </ul>
   );
 }
 
-export function RegistryImagesDialog({ open, onOpenChange, registry }: RegistryImagesDialogProps) {
+export function RegistryImagesDialog({
+  open,
+  onOpenChange,
+  registry,
+  onSelect,
+}: RegistryImagesDialogProps) {
   const [search, setSearch] = useState('');
   const { data, isLoading, isFetching, error } = useRegistryImagesQuery(registry.id, open);
 
@@ -179,7 +221,13 @@ export function RegistryImagesDialog({ open, onOpenChange, registry }: RegistryI
           aria-label="Search images"
           disabled={isLoading && !data}
         />
-        <Body isLoading={isLoading || isFetching} error={error} data={data} search={search} />
+        <Body
+          isLoading={isLoading || isFetching}
+          error={error}
+          data={data}
+          search={search}
+          onSelect={onSelect}
+        />
       </div>
     </Dialog>
   );
