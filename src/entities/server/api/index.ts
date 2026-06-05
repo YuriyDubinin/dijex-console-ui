@@ -18,3 +18,5 @@ export {
   SERVERS_QUERY_KEY,
 } from './useServers';
 export { usePingPolling, SERVER_PING_POLLING_KEY } from './usePingPolling';
+export { deployRemoteServer } from './deployRemoteServer';
+export { useDeployRemoteServer } from './useDeployRemoteServer';

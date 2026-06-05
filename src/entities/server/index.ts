@@ -14,6 +14,8 @@ export {
   usePingServer,
   useInstallServerKey,
   usePingPolling,
+  deployRemoteServer,
+  useDeployRemoteServer,
   SERVERS_QUERY_KEY,
   SERVER_PING_POLLING_KEY,
 } from './api';
@@ -26,6 +28,10 @@ export {
   SERVER_AUTH_METHOD_LABELS,
   describeServerCheck,
   describeServerInstallKey,
+  DEPLOY_RESTART_POLICIES,
+  DEPLOY_STEP_ORDER,
+  DEPLOY_STEP_TITLES,
+  isDeployDowntimeState,
 } from './model';
 export {
   ServerActiveBadge,
@@ -57,4 +63,12 @@ export type {
   ServerPingResult,
   ServerInstallKeyResult,
   CheckTone,
+  DeployRestartPolicy,
+  DeployPort,
+  DeployRequest,
+  DeployStepName,
+  DeployStepStatus,
+  DeployStep,
+  DeployResult,
+  DeployResponse,
 } from './model';

@@ -6,6 +6,22 @@ export {
 } from './labels';
 export { describeServerCheck, describeServerInstallKey } from './check';
 export type { CheckTone } from './check';
+export {
+  DEPLOY_RESTART_POLICIES,
+  DEPLOY_STEP_ORDER,
+  DEPLOY_STEP_TITLES,
+  isDeployDowntimeState,
+} from './deploy';
+export type {
+  DeployRestartPolicy,
+  DeployPort,
+  DeployRequest,
+  DeployStepName,
+  DeployStepStatus,
+  DeployStep,
+  DeployResult,
+  DeployResponse,
+} from './deploy';
 export type {
   Server,
   ServerProtocol,

@@ -27,6 +27,12 @@ type RequestOptions = {
   auth?: boolean;
   signal?: AbortSignal;
   headers?: Record<string, string>;
+  /**
+   * Переопределение таймаута, мс. По умолчанию {@link DEFAULT_TIMEOUT_MS}.
+   * Нужно для долгих синхронных операций (deploy, system/main по медленному
+   * SSH-линку) — иначе клиент прервёт запрос раньше, чем бэк успеет ответить.
+   */
+  timeoutMs?: number;
 };
 
 async function request<TResponse>(
@@ -35,10 +41,13 @@ async function request<TResponse>(
   body: unknown,
   options: RequestOptions = {},
 ): Promise<TResponse> {
-  const { auth = true, signal: externalSignal, headers = {} } = options;
+  const { auth = true, signal: externalSignal, headers = {}, timeoutMs } = options;
 
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort('timeout'), DEFAULT_TIMEOUT_MS);
+  const timeoutId = window.setTimeout(
+    () => controller.abort('timeout'),
+    timeoutMs ?? DEFAULT_TIMEOUT_MS,
+  );
   // Прокидываем внешний AbortSignal в наш контроллер, чтобы поддержать React Query / страничные cancel-сценарии.
   const onExternalAbort = () => controller.abort(externalSignal?.reason);
   if (externalSignal) {

@@ -10,3 +10,5 @@ export { ServerSshKeyIndicator } from './ui/ServerSshKeyIndicator';
 export type { ServerSshKeyIndicatorProps } from './ui/ServerSshKeyIndicator';
 export { ServerSshKeyDialog } from './ui/ServerSshKeyDialog';
 export type { ServerSshKeyDialogProps } from './ui/ServerSshKeyDialog';
+export { ServerDeployDialog } from './ui/ServerDeployDialog';
+export type { ServerDeployDialogProps } from './ui/ServerDeployDialog';

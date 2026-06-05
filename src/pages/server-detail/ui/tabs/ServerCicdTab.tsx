@@ -1,11 +1,20 @@
 import { useMemo, useState } from 'react';
-import { Boxes, ChevronDown, Container as ContainerIcon, Lock, X } from 'lucide-react';
+import {
+  Boxes,
+  ChevronDown,
+  Container as ContainerIcon,
+  Lock,
+  Rocket,
+  X,
+} from 'lucide-react';
 import {
   Card,
   Chip,
   DataView,
   FadeIn,
+  IconButton,
   Label,
+  Tooltip,
   ViewToggle,
   type DataColumn,
   type ViewMode,
@@ -23,6 +32,7 @@ import {
 } from '@entities/registry';
 import { usePingPolling, type Server } from '@entities/server';
 import { RegistryImagesDialog } from '@features/manage-registry';
+import { ServerDeployDialog } from '@features/manage-server';
 import { LiveIndicator } from '@widgets/system-snapshot';
 import { ContainerCard, PortChip, StateIcon } from './ContainerCard';
 
@@ -82,12 +92,14 @@ function ImagePickerRow({
   placeholder,
   onPick,
   onClear,
+  onDeploy,
 }: {
   image: RegistryImage | null;
   disabled?: boolean;
   placeholder?: string;
   onPick: () => void;
   onClear: () => void;
+  onDeploy?: () => void;
 }) {
   if (!image) {
     return (
@@ -169,6 +181,19 @@ function ImagePickerRow({
           </div>
         </div>
       </button>
+
+      {onDeploy ? (
+        <Tooltip content="Deploy this image to the server">
+          <IconButton
+            aria-label="Deploy this image"
+            size="sm"
+            onClick={onDeploy}
+            className="border border-accent/40 bg-accent-muted text-accent hover:bg-accent-muted hover:text-accent"
+          >
+            <Rocket size={13} aria-hidden className="drop-shadow-[0_0_4px_currentColor]" />
+          </IconButton>
+        </Tooltip>
+      ) : null}
 
       <button
         type="button"
@@ -363,6 +388,7 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
   );
 
   const [imagesOpen, setImagesOpen] = useState(false);
+  const [deployOpen, setDeployOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<RegistryImage | null>(null);
   // Выбор «таблица / карточки» переживает перезагрузку.
   const [view, setView] = usePersistentState<ViewMode>(
@@ -407,6 +433,7 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
             }
             onPick={() => setImagesOpen(true)}
             onClear={() => setSelectedImage(null)}
+            onDeploy={registry && selectedImage ? () => setDeployOpen(true) : undefined}
           />
         </div>
         {registry ? (
@@ -418,6 +445,15 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
               setSelectedImage(img);
               setImagesOpen(false);
             }}
+          />
+        ) : null}
+        {registry && selectedImage ? (
+          <ServerDeployDialog
+            open={deployOpen}
+            onOpenChange={setDeployOpen}
+            server={server}
+            registry={registry}
+            image={selectedImage}
           />
         ) : null}
 
