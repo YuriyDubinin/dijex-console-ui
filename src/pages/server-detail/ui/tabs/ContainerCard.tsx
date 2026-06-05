@@ -3,10 +3,11 @@ import {
   Pause,
   Play,
   RotateCw,
+  ScrollText,
   Skull,
   Square,
 } from 'lucide-react';
-import { Card, Chip, type ChipTone } from '@shared/ui';
+import { Card, Chip, Tooltip, type ChipTone } from '@shared/ui';
 import { cn } from '@shared/lib';
 import { formatBytes, formatRelative } from '@entities/system';
 import type { ContainerInfo, ContainerState } from '@entities/containers';
@@ -74,6 +75,8 @@ function PortChip({
 
 export type ContainerCardProps = {
   container: ContainerInfo;
+  /** Если передан — справа в нижней плашке появляется кнопка-иконка логов. */
+  onLogs?: (container: ContainerInfo) => void;
 };
 
 /**
@@ -81,7 +84,7 @@ export type ContainerCardProps = {
  * семантике состояния (running healthy → зелёная, unhealthy/paused → жёлтая,
  * restarting/created → синяя, dead/oom → красная, exited → серая).
  */
-export function ContainerCard({ container }: ContainerCardProps) {
+export function ContainerCard({ container, onLogs }: ContainerCardProps) {
   const tone = STATE_TONE[container.state] ?? 'neutral';
   const ports = (container.ports ?? []).filter((p) => p.private_port > 0);
   const networks = container.networks ?? [];
@@ -222,17 +225,36 @@ export function ContainerCard({ container }: ContainerCardProps) {
         </div>
       ) : null}
 
-      {/* Нижняя плашка: время */}
-      <div className="mt-auto border-t border-border-subtle pt-2 font-mono text-[10px] text-fg-muted">
-        {container.running && container.started_at ? (
-          <span>up {formatRelative(container.started_at)}</span>
-        ) : !container.running && container.finished_at ? (
-          <span>
-            exit {container.exit_code} · {formatRelative(container.finished_at)}
-          </span>
-        ) : (
-          <span>created {formatRelative(container.created_at)}</span>
-        )}
+      {/* Нижняя плашка: время + actions */}
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border-subtle pt-2 font-mono text-[10px] text-fg-muted">
+        <span className="min-w-0 truncate">
+          {container.running && container.started_at ? (
+            <>up {formatRelative(container.started_at)}</>
+          ) : !container.running && container.finished_at ? (
+            <>
+              exit {container.exit_code} · {formatRelative(container.finished_at)}
+            </>
+          ) : (
+            <>created {formatRelative(container.created_at)}</>
+          )}
+        </span>
+        {onLogs ? (
+          <Tooltip content="View logs">
+            <button
+              type="button"
+              aria-label="View container logs"
+              onClick={() => onLogs(container)}
+              className={cn(
+                'shrink-0 rounded-md p-1 text-fg-muted',
+                'transition-colors duration-150 ease-out',
+                'hover:bg-bg-2 hover:text-fg-primary',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+              )}
+            >
+              <ScrollText size={13} aria-hidden />
+            </button>
+          </Tooltip>
+        ) : null}
       </div>
     </Card>
   );

@@ -5,6 +5,7 @@ import {
   Container as ContainerIcon,
   Lock,
   Rocket,
+  ScrollText,
   X,
 } from 'lucide-react';
 import {
@@ -33,7 +34,7 @@ import {
 import { usePingPolling, type Server } from '@entities/server';
 import { RegistryImagesDialog } from '@features/manage-registry';
 import { ServerDeployDialog } from '@features/manage-server';
-import { LiveIndicator } from '@widgets/system-snapshot';
+import { ContainerLogsDialog, LiveIndicator } from '@widgets/system-snapshot';
 import { ContainerCard, PortChip, StateIcon } from './ContainerCard';
 
 export type ServerCicdTabProps = {
@@ -242,8 +243,10 @@ const STATE_TONE_CHIP: Record<string, 'success' | 'warning' | 'error' | 'info' |
   dead: 'error',
 };
 
-function containerColumns(): DataColumn<ContainerInfo>[] {
-  return [
+function containerColumns(handlers: {
+  onLogs?: (container: ContainerInfo) => void;
+}): DataColumn<ContainerInfo>[] {
+  const cols: DataColumn<ContainerInfo>[] = [
     {
       key: 'name',
       header: 'Name',
@@ -342,6 +345,30 @@ function containerColumns(): DataColumn<ContainerInfo>[] {
       ),
     },
   ];
+
+  if (handlers.onLogs) {
+    cols.push({
+      key: 'logs',
+      header: 'Logs',
+      align: 'center',
+      cellClassName: 'w-0 whitespace-nowrap',
+      cell: (c) => (
+        <span className="inline-flex justify-center">
+          <Tooltip content="View logs">
+            <IconButton
+              aria-label="View container logs"
+              size="sm"
+              onClick={() => handlers.onLogs?.(c)}
+            >
+              <ScrollText size={13} aria-hidden />
+            </IconButton>
+          </Tooltip>
+        </span>
+      ),
+    });
+  }
+
+  return cols;
 }
 
 /**
@@ -390,6 +417,8 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
   const [imagesOpen, setImagesOpen] = useState(false);
   const [deployOpen, setDeployOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<RegistryImage | null>(null);
+  /** Контейнер, для которого открыта модалка логов. null = модалка закрыта. */
+  const [logsFor, setLogsFor] = useState<ContainerInfo | null>(null);
   // Выбор «таблица / карточки» переживает перезагрузку.
   const [view, setView] = usePersistentState<ViewMode>(
     'page.server-cicd.containers.view',
@@ -410,7 +439,10 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
     });
   }, [data, selectedImage]);
 
-  const columns = useMemo(() => containerColumns(), []);
+  const columns = useMemo(
+    () => containerColumns({ onLogs: (c) => setLogsFor(c) }),
+    [],
+  );
 
   return (
     <FadeIn distance={4}>
@@ -457,6 +489,17 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
           />
         ) : null}
 
+        {logsFor ? (
+          <ContainerLogsDialog
+            open
+            onOpenChange={(next) => {
+              if (!next) setLogsFor(null);
+            }}
+            serverId={server.id}
+            container={logsFor.name}
+          />
+        ) : null}
+
         {/* Контейнеры: тулбар + DataView (таблица / карточки) */}
         <div className="flex flex-wrap items-end justify-between gap-3">
           <Label>
@@ -486,7 +529,7 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
           <DataView<ContainerInfo>
             items={sorted}
             columns={columns}
-            renderCard={(c) => <ContainerCard container={c} />}
+            renderCard={(c) => <ContainerCard container={c} onLogs={setLogsFor} />}
             getRowKey={(c) => c.id}
             view={view}
             isLoading={containersQ.isLoading || (containersQ.isFetching && sorted.length === 0)}

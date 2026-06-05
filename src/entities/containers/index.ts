@@ -7,6 +7,9 @@ export {
   getImages,
   useImagesQuery,
   IMAGES_QUERY_KEY,
+  getRemoteContainerLogs,
+  useRemoteContainerLogsQuery,
+  REMOTE_CONTAINER_LOGS_QUERY_KEY,
 } from './api';
 export { summarizeContainers, containersFootprintBytes } from './model';
 export type {
@@ -22,4 +25,7 @@ export type {
   ContainerStateSummary,
   ImageInfo,
   ImagesSnapshot,
+  ContainerLogsRequest,
+  ContainerLogsData,
+  ContainerLogsResponse,
 } from './model';

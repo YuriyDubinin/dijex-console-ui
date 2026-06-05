@@ -25,3 +25,5 @@ export { ContainersList } from './ui/ContainersList';
 export type { ContainersListProps } from './ui/ContainersList';
 export { HostImagesDialog } from './ui/HostImagesDialog';
 export type { HostImagesDialogProps } from './ui/HostImagesDialog';
+export { ContainerLogsDialog } from './ui/ContainerLogsDialog';
+export type { ContainerLogsDialogProps } from './ui/ContainerLogsDialog';
