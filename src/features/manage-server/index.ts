@@ -12,3 +12,5 @@ export { ServerSshKeyDialog } from './ui/ServerSshKeyDialog';
 export type { ServerSshKeyDialogProps } from './ui/ServerSshKeyDialog';
 export { ServerDeployDialog } from './ui/ServerDeployDialog';
 export type { ServerDeployDialogProps } from './ui/ServerDeployDialog';
+export { ServerPurgeDialog } from './ui/ServerPurgeDialog';
+export type { ServerPurgeDialogProps } from './ui/ServerPurgeDialog';

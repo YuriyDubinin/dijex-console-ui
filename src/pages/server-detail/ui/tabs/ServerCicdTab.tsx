@@ -6,6 +6,7 @@ import {
   Lock,
   Rocket,
   ScrollText,
+  Trash2,
   X,
 } from 'lucide-react';
 import {
@@ -33,7 +34,7 @@ import {
 } from '@entities/registry';
 import { usePingPolling, type Server } from '@entities/server';
 import { RegistryImagesDialog } from '@features/manage-registry';
-import { ServerDeployDialog } from '@features/manage-server';
+import { ServerDeployDialog, ServerPurgeDialog } from '@features/manage-server';
 import { ContainerLogsDialog, LiveIndicator } from '@widgets/system-snapshot';
 import { ContainerCard, PortChip, StateIcon } from './ContainerCard';
 
@@ -94,6 +95,7 @@ function ImagePickerRow({
   onPick,
   onClear,
   onDeploy,
+  onPurge,
 }: {
   image: RegistryImage | null;
   disabled?: boolean;
@@ -101,6 +103,7 @@ function ImagePickerRow({
   onPick: () => void;
   onClear: () => void;
   onDeploy?: () => void;
+  onPurge?: () => void;
 }) {
   if (!image) {
     return (
@@ -192,6 +195,19 @@ function ImagePickerRow({
             className="border border-accent/40 bg-accent-muted text-accent hover:bg-accent-muted hover:text-accent"
           >
             <Rocket size={13} aria-hidden className="drop-shadow-[0_0_4px_currentColor]" />
+          </IconButton>
+        </Tooltip>
+      ) : null}
+
+      {onPurge ? (
+        <Tooltip content="Purge this image and its containers from the server">
+          <IconButton
+            aria-label="Purge this image"
+            size="sm"
+            onClick={onPurge}
+            className="border border-state-error/40 bg-state-error-muted text-state-error hover:bg-state-error-muted hover:text-state-error"
+          >
+            <Trash2 size={13} aria-hidden />
           </IconButton>
         </Tooltip>
       ) : null}
@@ -416,6 +432,7 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
 
   const [imagesOpen, setImagesOpen] = useState(false);
   const [deployOpen, setDeployOpen] = useState(false);
+  const [purgeOpen, setPurgeOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<RegistryImage | null>(null);
   /** Контейнер, для которого открыта модалка логов. null = модалка закрыта. */
   const [logsFor, setLogsFor] = useState<ContainerInfo | null>(null);
@@ -466,6 +483,7 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
             onPick={() => setImagesOpen(true)}
             onClear={() => setSelectedImage(null)}
             onDeploy={registry && selectedImage ? () => setDeployOpen(true) : undefined}
+            onPurge={registry && selectedImage ? () => setPurgeOpen(true) : undefined}
           />
         </div>
         {registry ? (
@@ -483,6 +501,15 @@ export function ServerCicdTab({ server }: ServerCicdTabProps) {
           <ServerDeployDialog
             open={deployOpen}
             onOpenChange={setDeployOpen}
+            server={server}
+            registry={registry}
+            image={selectedImage}
+          />
+        ) : null}
+        {registry && selectedImage ? (
+          <ServerPurgeDialog
+            open={purgeOpen}
+            onOpenChange={setPurgeOpen}
             server={server}
             registry={registry}
             image={selectedImage}

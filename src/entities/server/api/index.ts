@@ -20,3 +20,5 @@ export {
 export { usePingPolling, SERVER_PING_POLLING_KEY } from './usePingPolling';
 export { deployRemoteServer } from './deployRemoteServer';
 export { useDeployRemoteServer } from './useDeployRemoteServer';
+export { purgeRemoteImage } from './purgeRemoteImage';
+export { usePurgeRemoteImage } from './usePurgeRemoteImage';

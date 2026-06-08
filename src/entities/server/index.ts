@@ -16,6 +16,8 @@ export {
   usePingPolling,
   deployRemoteServer,
   useDeployRemoteServer,
+  purgeRemoteImage,
+  usePurgeRemoteImage,
   SERVERS_QUERY_KEY,
   SERVER_PING_POLLING_KEY,
 } from './api';
@@ -32,6 +34,8 @@ export {
   DEPLOY_STEP_ORDER,
   DEPLOY_STEP_TITLES,
   isDeployDowntimeState,
+  PURGE_STEP_ORDER,
+  PURGE_STEP_TITLES,
 } from './model';
 export {
   ServerActiveBadge,
@@ -71,4 +75,10 @@ export type {
   DeployStep,
   DeployResult,
   DeployResponse,
+  PurgeRequest,
+  PurgeStepName,
+  PurgeStepStatus,
+  PurgeStep,
+  PurgeResult,
+  PurgeResponse,
 } from './model';

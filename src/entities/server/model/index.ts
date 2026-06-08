@@ -22,6 +22,15 @@ export type {
   DeployResult,
   DeployResponse,
 } from './deploy';
+export { PURGE_STEP_ORDER, PURGE_STEP_TITLES } from './purge';
+export type {
+  PurgeRequest,
+  PurgeStepName,
+  PurgeStepStatus,
+  PurgeStep,
+  PurgeResult,
+  PurgeResponse,
+} from './purge';
 export type {
   Server,
   ServerProtocol,
