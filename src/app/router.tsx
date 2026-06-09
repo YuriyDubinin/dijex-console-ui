@@ -28,6 +28,14 @@ const ProjectsPage = lazy(async () => {
   const m = await import('@pages/projects');
   return { default: m.ProjectsPage };
 });
+const BackupsPage = lazy(async () => {
+  const m = await import('@pages/backups');
+  return { default: m.BackupsPage };
+});
+const WorkflowPage = lazy(async () => {
+  const m = await import('@pages/workflow');
+  return { default: m.WorkflowPage };
+});
 const ClientsPage = lazy(async () => {
   const m = await import('@pages/clients');
   return { default: m.ClientsPage };
@@ -52,6 +60,8 @@ export function AppRoutes() {
         <Route path="/servers/:id/*" element={<ServerDetailPage />} />
         <Route path="/configs" element={<ConfigsPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/backups" element={<BackupsPage />} />
+        <Route path="/workflow" element={<WorkflowPage />} />
         <Route path="/registry" element={<RegistryPage />} />
         <Route path="/clients" element={<ClientsPage />} />
         <Route path="*" element={<NotFoundPage />} />

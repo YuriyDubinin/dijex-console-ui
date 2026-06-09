@@ -1,4 +1,14 @@
-import { Cpu, FileCog, FolderGit2, Package, Server, Users, type LucideIcon } from 'lucide-react';
+import {
+  Cpu,
+  DatabaseBackup,
+  FileCog,
+  FolderGit2,
+  Package,
+  Server,
+  Users,
+  Workflow,
+  type LucideIcon,
+} from 'lucide-react';
 
 export type NavItem = {
   to: string;
@@ -13,4 +23,6 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   { to: '/configs', label: 'Configs', icon: FileCog },
   { to: '/projects', label: 'Projects', icon: FolderGit2 },
   { to: '/clients', label: 'Clients', icon: Users },
+  { to: '/backups', label: 'Backups', icon: DatabaseBackup },
+  { to: '/workflow', label: 'Workflow', icon: Workflow },
 ];
