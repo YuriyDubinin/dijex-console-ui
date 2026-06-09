@@ -16,17 +16,17 @@ const ServerDetailPage = lazy(async () => {
   const m = await import('@pages/server-detail');
   return { default: m.ServerDetailPage };
 });
-const ContainersPage = lazy(async () => {
-  const m = await import('@pages/containers');
-  return { default: m.ContainersPage };
-});
-const ServicesPage = lazy(async () => {
-  const m = await import('@pages/services');
-  return { default: m.ServicesPage };
+const ConfigsPage = lazy(async () => {
+  const m = await import('@pages/configs');
+  return { default: m.ConfigsPage };
 });
 const RegistryPage = lazy(async () => {
   const m = await import('@pages/registry');
   return { default: m.RegistryPage };
+});
+const ProjectsPage = lazy(async () => {
+  const m = await import('@pages/projects');
+  return { default: m.ProjectsPage };
 });
 const ClientsPage = lazy(async () => {
   const m = await import('@pages/clients');
@@ -50,8 +50,8 @@ export function AppRoutes() {
         <Route path="/servers" element={<ServersPage />} />
         {/* splat — внутренняя табуляция страницы сервера (/servers/:id, /servers/:id/cicd) */}
         <Route path="/servers/:id/*" element={<ServerDetailPage />} />
-        <Route path="/containers" element={<ContainersPage />} />
-        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/configs" element={<ConfigsPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/registry" element={<RegistryPage />} />
         <Route path="/clients" element={<ClientsPage />} />
         <Route path="*" element={<NotFoundPage />} />

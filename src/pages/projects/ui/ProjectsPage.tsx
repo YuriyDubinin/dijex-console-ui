@@ -3,11 +3,11 @@ import { Card } from '@shared/ui';
 import { useDocumentTitle } from '@shared/lib';
 import { PageHeader } from '@widgets/page-header';
 
-export function ServicesPage() {
-  useDocumentTitle('Services');
+export function ProjectsPage() {
+  useDocumentTitle('Projects');
   return (
     <>
-      <PageHeader title="Services" subtitle={'// empty'} />
+      <PageHeader title="Projects" subtitle={'// empty'} />
       <Card>
         <div className="flex flex-col items-center justify-center gap-3 py-12">
           <Construction size={20} aria-hidden className="text-fg-muted" />
